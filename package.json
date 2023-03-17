@@ -1,0 +1,24 @@
+{
+  "name": "markdown-parser",
+  "version": "0.0.1",
+  "description": "Markdown parser",
+  "main": "index.js",
+  "repository": "https://github.com/Saartje87/markdown-parser",
+  "author": "Niek Saarberg <n.saarberg@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "eslint": "eslint --ext .js,.jsx,.ts,.tsx src/"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.55.0",
+    "@typescript-eslint/parser": "^5.55.0",
+    "eslint": "^8.36.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-unicorn": "^46.0.0",
+    "prettier": "^2.8.4",
+    "typescript": "^5.0.2",
+    "vitest": "^0.29.3"
+  }
+}
