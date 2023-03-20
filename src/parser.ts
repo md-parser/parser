@@ -1,4 +1,19 @@
-import { BreakNode, HeadingNode, ImageNode, LinkNode, Node, TextNode } from './nodes';
+import {
+  BreakNode,
+  CodeBlockNode,
+  HeadingNode,
+  ImageNode,
+  InlineCodeNode,
+  ItalicNode,
+  LinkNode,
+  Node,
+  StrongNode,
+  TextNode,
+  UnorderedListNode,
+} from './nodes';
+
+const ESCAPE = '\\';
+const EOL = '\n';
 
 export function parse(markdown: string): Node[] {
   const ast: Node[] = [];
@@ -6,12 +21,35 @@ export function parse(markdown: string): Node[] {
   let index = 0;
   const length = markdown.length;
 
+  //
+  function debug() {
+    console.log('debug', JSON.stringify(markdown.slice(index)));
+  }
+
   function peek(index: number) {
     return markdown[index];
   }
 
+  function peekPart(index: number, length: number) {
+    return markdown.slice(index, index + length);
+  }
+
+  function lookAhead(value: string, from: number): boolean {
+    return markdown.includes(value, from);
+  }
+
   function next() {
     return markdown[index++];
+  }
+
+  function setIndex(value: number) {
+    index = value;
+  }
+
+  function skipEmptySpaces() {
+    while (index < length && peek(index) === ' ') {
+      next();
+    }
   }
 
   function skipEmpty() {
@@ -20,13 +58,19 @@ export function parse(markdown: string): Node[] {
     }
   }
 
-  function parseText(): TextNode {
+  function parseText(stopAtChar?: string): TextNode {
     let value = '';
+    const stopAtCharLength = stopAtChar ? stopAtChar.length : 0;
 
     while (index < length && !isSpecialChar(index)) {
+      if (stopAtChar && peekPart(index, stopAtCharLength) === stopAtChar) {
+        break;
+      }
+
       // Remove escape character
-      if (peek(index) === '\\' && isSpecialChar(index + 1, true)) {
+      if (peek(index) === ESCAPE && isSpecialChar(index + 1, true)) {
         next();
+        continue;
       }
 
       value += next();
@@ -38,11 +82,17 @@ export function parse(markdown: string): Node[] {
     };
   }
 
-  function parseSection(): Node[] {
+  function parseSection(stopAtChar?: string): Node[] {
     const nodes = [];
+    const stopAtCharLength = stopAtChar ? stopAtChar.length : 0;
 
     while (index < length) {
-      if (peek(index) === '\n' && peek(index + 1) === '\n') {
+      if (stopAtChar && peekPart(index, stopAtCharLength) === stopAtChar) {
+        setIndex(index + stopAtCharLength);
+        break;
+      }
+
+      if (peek(index) === '\n' && isSpecialChar(index + 1)) {
         break;
       }
 
@@ -50,6 +100,7 @@ export function parse(markdown: string): Node[] {
         const node = parseSpecial();
 
         if (!node) {
+          nodes.push(parseText());
           break;
         }
 
@@ -57,12 +108,13 @@ export function parse(markdown: string): Node[] {
         continue;
       }
 
-      nodes.push(parseText());
+      nodes.push(parseText(stopAtChar));
     }
 
     return nodes;
   }
 
+  // Rename to isStartOfNode()?
   function isSpecialChar(index: number, skipEscape = false): boolean {
     const char = peek(index);
     const next = peek(index + 1);
@@ -71,19 +123,136 @@ export function parse(markdown: string): Node[] {
       return false;
     }
 
-    return (
-      char === '#' ||
-      char === '*' ||
-      char === '\n' ||
-      (char === '!' && next === '[') ||
-      char === '['
-    );
+    if (isEmphasis(index) || isUnorderedList(index) || isCode(index)) {
+      return true;
+    }
+
+    return char === '\n' || (char === '!' && next === '[') || char === '[';
+  }
+
+  function isUnorderedList(index: number): boolean {
+    const char = peek(index);
+
+    if ((char === '*' || char === '-' || char === '+') && peek(index + 1) === ' ') {
+      return true;
+    }
+
+    return false;
+  }
+
+  // TODO Add support for nested lists
+  function parseUnorderedList(): UnorderedListNode {
+    const node: UnorderedListNode = {
+      type: 'unordered-list',
+      children: [],
+    };
+
+    while (index < length && isUnorderedList(index)) {
+      // Skip '* '
+      next();
+      next();
+
+      node.children.push({
+        type: 'list-item',
+        children: parseSection(EOL),
+      });
+
+      // Two line breaks, end of list
+      if (peek(index - 1) === EOL && peek(index) === EOL) {
+        break;
+      }
+
+      skipEmpty();
+    }
+
+    return node;
+  }
+
+  function isEmphasis(index: number): boolean {
+    const char = peek(index);
+
+    if (char !== '*') {
+      return false;
+    }
+
+    const endString = peek(index + 1) === '*' ? '**' : '*';
+
+    return lookAhead(endString, index + 1);
+  }
+
+  function parseEmphasis(): StrongNode | ItalicNode {
+    const char = peek(index);
+    const nextChar = peek(index + 1);
+
+    if (char === '*' && nextChar === '*') {
+      next();
+      next();
+
+      const children = parseSection('**');
+
+      return {
+        type: 'strong',
+        children,
+      };
+    }
+
+    next();
+
+    return {
+      type: 'italic',
+      children: parseSection('*'),
+    };
+  }
+
+  function parseRawValue(chars: string): string {
+    const start = index + chars.length;
+    const end = markdown.indexOf(chars, start);
+
+    setIndex(end + chars.length);
+
+    return markdown.slice(start, end);
+  }
+
+  function isCode(index: number): boolean {
+    const char = peek(index);
+    const codeBlock = peekPart(index, 3) === '```';
+
+    if (codeBlock) {
+      return lookAhead('```', index + 3);
+    }
+
+    return char === '`' && lookAhead('`', index + 1);
+  }
+
+  function parseCode(): InlineCodeNode | CodeBlockNode {
+    const codeBlock = peekPart(index, 3) === '```';
+
+    if (codeBlock) {
+      return {
+        type: 'code-block',
+        value: parseRawValue('```'),
+      };
+    }
+
+    return {
+      type: 'inline-code',
+      value: parseRawValue('`'),
+    };
   }
 
   function parseSpecial(): Node | void {
     const char = peek(index);
 
-    // if (char === '*') {
+    if (isEmphasis(index)) {
+      return parseEmphasis();
+    }
+
+    if (isCode(index)) {
+      return parseCode();
+    }
+
+    // Parse ordered list
+    // if(/\d/.test(char) && peek(index + 1) === '.' && peek(index + 2) === ' '){
     //   return parseList();
     // }
 
@@ -99,7 +268,7 @@ export function parse(markdown: string): Node[] {
       return parseLink();
     }
 
-    console.log('!WQWE', JSON.stringify(char), JSON.stringify(markdown.slice(index, index + 2)));
+    console.log('No match!?', JSON.stringify(char), JSON.stringify(markdown.slice(index)));
   }
 
   function parseBreak(): BreakNode | void {
@@ -185,6 +354,25 @@ export function parse(markdown: string): Node[] {
     };
   }
 
+  function isHeading(index: number): boolean {
+    let level = 0;
+
+    while (index < length && peek(index) === '#') {
+      level++;
+      index++;
+    }
+
+    if (level > 6) {
+      return false;
+    }
+
+    if (peek(index) !== ' ') {
+      return false;
+    }
+
+    return true;
+  }
+
   function parseHeading(): HeadingNode {
     let level = 0;
 
@@ -193,44 +381,42 @@ export function parse(markdown: string): Node[] {
       next();
     }
 
-    // skip space
-    next();
+    skipEmptySpaces();
 
     return {
       type: 'heading',
       level,
-      // TODO parse section should that on line ending
-      children: parseSection(),
+      children: parseSection(EOL),
     };
   }
 
-  // Skip whitespaces and newlines
-  skipEmpty();
-
   while (index < length) {
     const nodeType = peek(index);
-    // console.log('->', JSON.stringify(nodeType));
 
-    if (nodeType === '#') {
-      ast.push(parseHeading());
-      continue;
-    }
-
-    if (nodeType === ' ' || nodeType === '\n') {
+    if (nodeType === ' ' || nodeType === EOL) {
       next();
       continue;
     }
 
-    const section = parseSection();
-
-    if (section.length === 1 && section[0].type === 'heading') {
-      ast.push(section[0]);
-    } else {
-      ast.push({
-        type: 'paragraph',
-        children: section,
-      });
+    if (nodeType === '#' && isHeading(index)) {
+      ast.push(parseHeading());
+      continue;
     }
+
+    if (isHeading(index)) {
+      ast.push(parseHeading());
+      continue;
+    }
+
+    if (isUnorderedList(index)) {
+      ast.push(parseUnorderedList());
+      continue;
+    }
+
+    ast.push({
+      type: 'paragraph',
+      children: parseSection(),
+    });
   }
 
   return ast;

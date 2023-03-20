@@ -1,12 +1,8 @@
 import { parse } from './parser';
 
 describe('parser', () => {
-  it('should parse basic text', () => {
-    const ast = parse(`
-      # Title
-
-      ## Subtitle
-    `);
+  it('should parse heading', () => {
+    const ast = parse('# Title');
 
     expect(ast).toEqual([
       {
@@ -19,13 +15,26 @@ describe('parser', () => {
           },
         ],
       },
+    ]);
+  });
+
+  it('should parse paragraph', () => {
+    const ast = parse('Hello\nworld!');
+
+    expect(ast).toEqual([
       {
-        type: 'heading',
-        level: 2,
+        type: 'paragraph',
         children: [
           {
             type: 'text',
-            value: 'Subtitle',
+            value: 'Hello',
+          },
+          {
+            type: 'break',
+          },
+          {
+            type: 'text',
+            value: 'world!',
           },
         ],
       },

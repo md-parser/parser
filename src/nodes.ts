@@ -45,6 +45,31 @@ export type BreakNode = {
   type: 'break';
 };
 
+export type OrderedListNode = {
+  type: 'ordered-list';
+  children: Node[];
+};
+
+export type UnorderedListNode = {
+  type: 'unordered-list';
+  children: Node[];
+};
+
+export type ListItemNode = {
+  type: 'list-item';
+  children: Node[];
+};
+
+export type CodeBlockNode = {
+  type: 'code-block';
+  value: string;
+};
+
+export type InlineCodeNode = {
+  type: 'inline-code';
+  value: string;
+};
+
 export type Node =
   | TextNode
   | ParagraphNode
@@ -53,4 +78,9 @@ export type Node =
   | ImageNode
   | HeadingNode
   | ItalicNode
-  | BreakNode;
+  | BreakNode
+  | OrderedListNode
+  | UnorderedListNode
+  | ListItemNode
+  | CodeBlockNode
+  | InlineCodeNode;
