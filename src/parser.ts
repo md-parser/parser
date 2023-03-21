@@ -7,6 +7,7 @@ import {
   ItalicNode,
   LinkNode,
   Node,
+  OrderedListNode,
   StrongNode,
   TextNode,
   UnorderedListNode,
@@ -53,7 +54,7 @@ export function parse(markdown: string): Node[] {
   }
 
   function skipEmpty() {
-    while (index < length && (peek(index) === ' ' || peek(index) === '\n')) {
+    while (index < length && (peek(index) === ' ' || peek(index) === EOL)) {
       index++;
     }
   }
@@ -92,7 +93,7 @@ export function parse(markdown: string): Node[] {
         break;
       }
 
-      if (peek(index) === '\n' && isSpecialChar(index + 1)) {
+      if (peek(index) === EOL && isSpecialChar(index + 1)) {
         break;
       }
 
@@ -119,7 +120,7 @@ export function parse(markdown: string): Node[] {
     const char = peek(index);
     const next = peek(index + 1);
 
-    if (!skipEscape && peek(index - 1) === '\\') {
+    if (!skipEscape && peek(index - 1) === ESCAPE) {
       return false;
     }
 
@@ -127,7 +128,7 @@ export function parse(markdown: string): Node[] {
       return true;
     }
 
-    return char === '\n' || (char === '!' && next === '[') || char === '[';
+    return char === EOL || (char === '!' && next === '[') || char === '[';
   }
 
   function isUnorderedList(index: number): boolean {
@@ -154,6 +155,40 @@ export function parse(markdown: string): Node[] {
 
       node.children.push({
         type: 'list-item',
+        // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE
+        children: parseSection(EOL),
+      });
+
+      // Two line breaks, end of list
+      if (peek(index - 1) === EOL && peek(index) === EOL) {
+        break;
+      }
+
+      skipEmpty();
+    }
+
+    return node;
+  }
+
+  function isOrderedList(index: number): boolean {
+    return /\d/.test(peek(index)) && peek(index + 1) === '.' && peek(index + 2) === ' ';
+  }
+
+  function parseOrderedList(): OrderedListNode {
+    const node: OrderedListNode = {
+      type: 'ordered-list',
+      children: [],
+    };
+
+    while (index < length && isOrderedList(index)) {
+      // Skip '1. '
+      next();
+      next();
+      next();
+
+      node.children.push({
+        type: 'list-item',
+        // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE
         children: parseSection(EOL),
       });
 
@@ -251,12 +286,7 @@ export function parse(markdown: string): Node[] {
       return parseCode();
     }
 
-    // Parse ordered list
-    // if(/\d/.test(char) && peek(index + 1) === '.' && peek(index + 2) === ' '){
-    //   return parseList();
-    // }
-
-    if (char === '\n' && peek(index + 1) !== '\n') {
+    if (char === EOL && peek(index + 1) !== EOL) {
       return parseBreak();
     }
 
@@ -410,6 +440,11 @@ export function parse(markdown: string): Node[] {
 
     if (isUnorderedList(index)) {
       ast.push(parseUnorderedList());
+      continue;
+    }
+
+    if (isOrderedList(index)) {
+      ast.push(parseOrderedList());
       continue;
     }
 
