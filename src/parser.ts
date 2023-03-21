@@ -93,7 +93,7 @@ export function parse(markdown: string): Node[] {
         break;
       }
 
-      if (peek(index) === EOL && isSpecialChar(index + 1)) {
+      if (peek(index) === EOL && peek(index + 1) === EOL) {
         break;
       }
 
@@ -124,7 +124,7 @@ export function parse(markdown: string): Node[] {
       return false;
     }
 
-    if (isEmphasis(index) || isUnorderedList(index) || isCode(index)) {
+    if (isEmphasis(index) || isUnorderedList(index) || isInlineCode(index)) {
       return true;
     }
 
@@ -248,30 +248,25 @@ export function parse(markdown: string): Node[] {
     return markdown.slice(start, end);
   }
 
-  function isCode(index: number): boolean {
-    const char = peek(index);
-    const codeBlock = peekPart(index, 3) === '```';
-
-    if (codeBlock) {
-      return lookAhead('```', index + 3);
-    }
-
-    return char === '`' && lookAhead('`', index + 1);
+  function isInlineCode(index: number): boolean {
+    return peek(index) === '`' && lookAhead('`', index + 1);
   }
 
-  function parseCode(): InlineCodeNode | CodeBlockNode {
-    const codeBlock = peekPart(index, 3) === '```';
-
-    if (codeBlock) {
-      return {
-        type: 'code-block',
-        value: parseRawValue('```'),
-      };
-    }
-
+  function parseInlineCode(): InlineCodeNode {
     return {
       type: 'inline-code',
       value: parseRawValue('`'),
+    };
+  }
+
+  function isCodeBlock(index: number): boolean {
+    return peekPart(index, 3) === '```' && lookAhead('```', index + 3);
+  }
+
+  function parseCodeBlock(): InlineCodeNode | CodeBlockNode {
+    return {
+      type: 'code-block',
+      value: parseRawValue('```'),
     };
   }
 
@@ -282,8 +277,12 @@ export function parse(markdown: string): Node[] {
       return parseEmphasis();
     }
 
-    if (isCode(index)) {
-      return parseCode();
+    if (isInlineCode(index)) {
+      return parseInlineCode();
+    }
+
+    if (isInlineCode(index)) {
+      return parseCodeBlock();
     }
 
     if (char === EOL && peek(index + 1) !== EOL) {
@@ -445,6 +444,11 @@ export function parse(markdown: string): Node[] {
 
     if (isOrderedList(index)) {
       ast.push(parseOrderedList());
+      continue;
+    }
+
+    if (isCodeBlock(index)) {
+      ast.push(parseCodeBlock());
       continue;
     }
 
