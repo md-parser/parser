@@ -239,11 +239,11 @@ export function parse(markdown: string): Node[] {
     };
   }
 
-  function parseRawValue(chars: string): string {
-    const start = index + chars.length;
-    const end = markdown.indexOf(chars, start);
+  function parseRawValue(stopAtChar: string): string {
+    const start = index;
+    const end = markdown.indexOf(stopAtChar, index);
 
-    setIndex(end + chars.length);
+    setIndex(end + stopAtChar.length);
 
     return markdown.slice(start, end);
   }
@@ -253,6 +253,9 @@ export function parse(markdown: string): Node[] {
   }
 
   function parseInlineCode(): InlineCodeNode {
+    // Skip `
+    next();
+
     return {
       type: 'inline-code',
       value: parseRawValue('`'),
@@ -263,10 +266,15 @@ export function parse(markdown: string): Node[] {
     return peekPart(index, 3) === '```' && lookAhead('```', index + 3);
   }
 
-  function parseCodeBlock(): InlineCodeNode | CodeBlockNode {
+  function parseCodeBlock(): CodeBlockNode {
+    const language = markdown.slice(index + 3, markdown.indexOf(EOL, index + 3));
+
+    setIndex(markdown.indexOf(EOL, index + 3) + 1);
+
     return {
       type: 'code-block',
-      value: parseRawValue('```'),
+      language,
+      value: parseRawValue('\n```'),
     };
   }
 
