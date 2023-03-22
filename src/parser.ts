@@ -22,8 +22,8 @@ export function parse(markdown: string): Node[] {
   const length = markdown.length;
 
   //
-  function debug() {
-    console.log('debug', JSON.stringify(markdown.slice(index)));
+  function debug(str?: string) {
+    console.log('debug', str, JSON.stringify(markdown.slice(index)));
   }
 
   function peek(index: number) {
@@ -32,6 +32,10 @@ export function parse(markdown: string): Node[] {
 
   function peekPart(index: number, length: number) {
     return markdown.slice(index, index + length);
+  }
+
+  function peekAll(index: number) {
+    return markdown.slice(index);
   }
 
   function lookAhead(value: string, from: number): boolean {
@@ -131,17 +135,12 @@ export function parse(markdown: string): Node[] {
   }
 
   function isUnorderedList(index: number): boolean {
-    const char = peek(index);
+    const buffer = peekAll(index);
 
-    if ((char === '*' || char === '-' || char === '+') && peek(index + 1) === ' ') {
-      return true;
-    }
-
-    return false;
+    return /^[\t |]*[*+-] /.test(buffer);
   }
 
-  // TODO Add support for nested lists
-  function parseUnorderedList(): ListNode {
+  function parseUnorderedList(depth = 0): ListNode {
     const node: ListNode = {
       type: 'list',
       ordered: false,
@@ -149,22 +148,38 @@ export function parse(markdown: string): Node[] {
     };
 
     while (index < length && isUnorderedList(index)) {
-      // Skip '* '
-      next();
-      next();
+      let level = 0;
 
-      node.children.push({
-        type: 'list-item',
-        // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE?
-        children: parseSection(EOL),
-      });
+      while (peek(index + level) === ' ' || peek(index + level) === '\t') {
+        level++;
+      }
+
+      if (level === depth) {
+        setIndex(index + level);
+
+        next();
+        next();
+
+        node.children.push({
+          type: 'list-item',
+          // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE?
+          children: parseSection(EOL),
+        });
+      }
+
+      if (level > depth) {
+        node.children.push(parseUnorderedList(level));
+        continue;
+      }
+
+      if (level < depth) {
+        break;
+      }
 
       // Two line breaks, end of list
       if (peek(index - 1) === EOL && peek(index) === EOL) {
         break;
       }
-
-      skipEmpty();
     }
 
     return node;
@@ -428,21 +443,30 @@ export function parse(markdown: string): Node[] {
       next();
     }
 
-    skipEmptySpaces();
+    // Skip to beginning of text
+    while (peek(index) === ' ') {
+      next();
+    }
 
     return {
       type: 'heading',
-      level,
+      level: level as HeadingNode['level'],
       children: parseSection(EOL),
     };
   }
 
   while (index < length) {
     const nodeType = peek(index);
+    const match = peekAll(index).match(/^[\n ]*/);
 
-    if (nodeType === ' ' || nodeType === EOL) {
-      next();
+    // Skip empty lines
+    if (match && match[0]) {
+      setIndex(index + match[0].length);
       continue;
+    }
+
+    if (nodeType === EOL) {
+      next();
     }
 
     if (isHeading(index)) {

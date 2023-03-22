@@ -37,7 +37,7 @@ export type ImageNode = {
 
 export type HeadingNode = {
   type: 'heading';
-  level: number;
+  level: 1 | 2 | 3 | 4 | 5 | 6;
   children: Node[];
 };
 
