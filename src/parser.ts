@@ -6,11 +6,10 @@ import {
   InlineCodeNode,
   ItalicNode,
   LinkNode,
+  ListNode,
   Node,
-  OrderedListNode,
   StrongNode,
   TextNode,
-  UnorderedListNode,
 } from './nodes';
 
 const ESCAPE = '\\';
@@ -93,7 +92,7 @@ export function parse(markdown: string): Node[] {
         break;
       }
 
-      if (peek(index) === EOL && peek(index + 1) === EOL) {
+      if (peek(index) === EOL && (peek(index + 1) === EOL || index + 1 >= length)) {
         break;
       }
 
@@ -142,9 +141,10 @@ export function parse(markdown: string): Node[] {
   }
 
   // TODO Add support for nested lists
-  function parseUnorderedList(): UnorderedListNode {
-    const node: UnorderedListNode = {
-      type: 'unordered-list',
+  function parseUnorderedList(): ListNode {
+    const node: ListNode = {
+      type: 'list',
+      ordered: false,
       children: [],
     };
 
@@ -155,7 +155,7 @@ export function parse(markdown: string): Node[] {
 
       node.children.push({
         type: 'list-item',
-        // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE
+        // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE?
         children: parseSection(EOL),
       });
 
@@ -174,9 +174,10 @@ export function parse(markdown: string): Node[] {
     return /\d/.test(peek(index)) && peek(index + 1) === '.' && peek(index + 2) === ' ';
   }
 
-  function parseOrderedList(): OrderedListNode {
-    const node: OrderedListNode = {
-      type: 'ordered-list',
+  function parseOrderedList(): ListNode {
+    const node: ListNode = {
+      type: 'list',
+      ordered: true,
       children: [],
     };
 
@@ -249,7 +250,12 @@ export function parse(markdown: string): Node[] {
   }
 
   function isInlineCode(index: number): boolean {
-    return peek(index) === '`' && lookAhead('`', index + 1);
+    // Make sure it's not an empty code block
+    if (peek(index) !== '`' || peek(index + 1) === '`') {
+      return false;
+    }
+
+    return lookAhead('`', index + 1);
   }
 
   function parseInlineCode(): InlineCodeNode {
@@ -394,6 +400,10 @@ export function parse(markdown: string): Node[] {
   function isHeading(index: number): boolean {
     let level = 0;
 
+    if (peek(index) !== '#') {
+      return false;
+    }
+
     while (index < length && peek(index) === '#') {
       level++;
       index++;
@@ -432,11 +442,6 @@ export function parse(markdown: string): Node[] {
 
     if (nodeType === ' ' || nodeType === EOL) {
       next();
-      continue;
-    }
-
-    if (nodeType === '#' && isHeading(index)) {
-      ast.push(parseHeading());
       continue;
     }
 
