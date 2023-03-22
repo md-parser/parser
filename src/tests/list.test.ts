@@ -63,8 +63,8 @@ describe('parse.list', () => {
     ]);
   });
 
-  // TODO Fix this test
-  it.skip('should parse multilevel unordered list', () => {
+  it('should parse multilevel unordered list', () => {
+    // Note the tab character before the second list item
     const ast = parse('* Item 1\n\t* Item 2\n* Item 3');
 
     expect(ast).toEqual([
