@@ -41,8 +41,8 @@ export type HeadingNode = {
   children: Node[];
 };
 
-export type BreakNode = {
-  type: 'break';
+export type LineBreakNode = {
+  type: 'linebreak';
 };
 
 export type ListNode = {
@@ -75,7 +75,7 @@ export type Node =
   | ImageNode
   | HeadingNode
   | ItalicNode
-  | BreakNode
+  | LineBreakNode
   | ListNode
   | ListItemNode
   | CodeBlockNode

@@ -1,10 +1,10 @@
 import {
-  BreakNode,
   CodeBlockNode,
   HeadingNode,
   ImageNode,
   InlineCodeNode,
   ItalicNode,
+  LineBreakNode,
   LinkNode,
   ListNode,
   Node,
@@ -314,7 +314,7 @@ export function parse(markdown: string): Node[] {
     console.log('No match!?', JSON.stringify(char), JSON.stringify(markdown.slice(index)));
   }
 
-  function parseBreak(): BreakNode | void {
+  function parseBreak(): LineBreakNode | void {
     // skip ' ' and '\n'
     skipEmpty();
 
@@ -323,7 +323,7 @@ export function parse(markdown: string): Node[] {
     }
 
     return {
-      type: 'break',
+      type: 'linebreak',
     };
   }
 
