@@ -1,5 +1,5 @@
 {
-  "name": "md-ast",
+  "name": "@saartje87/md-ast",
   "version": "0.0.1",
   "description": "Markdown parser",
   "main": "dist/index.esm.js",
@@ -8,6 +8,7 @@
   "license": "MIT",
   "type": "module",
   "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest --threads=false",
     "coverage": "vitest run --coverage",
