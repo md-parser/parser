@@ -86,6 +86,7 @@ export function parse(markdown: string): Node[] {
     };
   }
 
+  // Rename to parseInline?
   function parseSection(stopAtChar?: string): Node[] {
     const nodes = [];
     const stopAtCharLength = stopAtChar ? stopAtChar.length : 0;
@@ -361,9 +362,6 @@ export function parse(markdown: string): Node[] {
     next();
 
     const children = parseSection(']');
-
-    // skip ]
-    next();
 
     // skip (
     next();
