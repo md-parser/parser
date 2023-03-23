@@ -9,6 +9,9 @@
   "type": "module",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "test": "vitest --threads=false",
     "coverage": "vitest run --coverage",
