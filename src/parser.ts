@@ -21,10 +21,9 @@ export function parse(markdown: string): Node[] {
   let index = 0;
   const length = markdown.length;
 
-  //
-  function debug(str?: string) {
-    console.log('debug', str, JSON.stringify(markdown.slice(index)));
-  }
+  // function debug(str?: string) {
+  //   console.log('debug', str, JSON.stringify(markdown.slice(index)));
+  // }
 
   function peek(index: number) {
     return markdown[index];
@@ -48,12 +47,6 @@ export function parse(markdown: string): Node[] {
 
   function setIndex(value: number) {
     index = value;
-  }
-
-  function skipEmptySpaces() {
-    while (index < length && peek(index) === ' ') {
-      next();
-    }
   }
 
   function skipEmpty() {
