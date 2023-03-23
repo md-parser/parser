@@ -37,7 +37,7 @@ export type ImageNode = {
 
 export type HeadingNode = {
   type: 'heading';
-  level: 1 | 2 | 3 | 4 | 5 | 6;
+  level: number;
   children: Node[];
 };
 
@@ -48,7 +48,9 @@ export type LineBreakNode = {
 export type ListNode = {
   type: 'list';
   ordered: boolean;
-  children: Node[];
+  // if ordered is true, then start is the starting number
+  // start: number;
+  children: (ListNode | ListItemNode)[];
 };
 
 export type ListItemNode = {
@@ -77,6 +79,5 @@ export type Node =
   | ItalicNode
   | LineBreakNode
   | ListNode
-  | ListItemNode
   | CodeBlockNode
   | InlineCodeNode;

@@ -140,25 +140,37 @@ export function parse(markdown: string): Node[] {
     return /^[\t |]*[*+-] /.test(buffer);
   }
 
-  function parseUnorderedList(depth = 0): ListNode {
+  function isList(index: number): boolean {
+    return /^[\t |]*([*+-]|\d+.) /.test(peekAll(index));
+  }
+
+  function parseList(depth = 0): ListNode {
     const node: ListNode = {
       type: 'list',
-      ordered: false,
+      ordered: /^[\t |]*\d+. /.test(peekAll(index)),
       children: [],
     };
 
-    while (index < length && isUnorderedList(index)) {
+    while (index < length && isList(index)) {
       let level = 0;
 
       while (peek(index + level) === ' ' || peek(index + level) === '\t') {
         level++;
       }
 
-      if (level === depth) {
-        setIndex(index + level);
+      const match = peekAll(index).match(/^[\t |]*([*+-]|\d+.) /); //  /^[ |\t]*\d+. /.match(peekAll(index));
 
-        next();
-        next();
+      if (!match) {
+        break;
+      }
+
+      // Break current list parsing when next list entry changes from ordered to unordered or vice versa
+      if (level === depth && node.ordered !== /\d+./.test(match[1])) {
+        break;
+      }
+
+      if (level === depth) {
+        setIndex(index + match[0].length);
 
         node.children.push({
           type: 'list-item',
@@ -168,7 +180,7 @@ export function parse(markdown: string): Node[] {
       }
 
       if (level > depth) {
-        node.children.push(parseUnorderedList(level));
+        node.children.push(parseList(level));
         continue;
       }
 
@@ -180,40 +192,6 @@ export function parse(markdown: string): Node[] {
       if (peek(index - 1) === EOL && peek(index) === EOL) {
         break;
       }
-    }
-
-    return node;
-  }
-
-  function isOrderedList(index: number): boolean {
-    return /\d/.test(peek(index)) && peek(index + 1) === '.' && peek(index + 2) === ' ';
-  }
-
-  function parseOrderedList(): ListNode {
-    const node: ListNode = {
-      type: 'list',
-      ordered: true,
-      children: [],
-    };
-
-    while (index < length && isOrderedList(index)) {
-      // Skip '1. '
-      next();
-      next();
-      next();
-
-      node.children.push({
-        type: 'list-item',
-        // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE
-        children: parseSection(EOL),
-      });
-
-      // Two line breaks, end of list
-      if (peek(index - 1) === EOL && peek(index) === EOL) {
-        break;
-      }
-
-      skipEmpty();
     }
 
     return node;
@@ -377,15 +355,12 @@ export function parse(markdown: string): Node[] {
   }
 
   function parseLink(): LinkNode {
-    let value = '';
     let href = '';
 
     // skip [
     next();
 
-    while (index < length && peek(index) !== ']') {
-      value += next();
-    }
+    const children = parseSection(']');
 
     // skip ]
     next();
@@ -403,12 +378,7 @@ export function parse(markdown: string): Node[] {
     return {
       type: 'link',
       href,
-      children: [
-        {
-          type: 'text',
-          value,
-        },
-      ],
+      children,
     };
   }
 
@@ -474,13 +444,8 @@ export function parse(markdown: string): Node[] {
       continue;
     }
 
-    if (isUnorderedList(index)) {
-      ast.push(parseUnorderedList());
-      continue;
-    }
-
-    if (isOrderedList(index)) {
-      ast.push(parseOrderedList());
+    if (isList(index)) {
+      ast.push(parseList());
       continue;
     }
 
