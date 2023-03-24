@@ -23,6 +23,11 @@ export type ItalicNode = {
   children: Node[];
 };
 
+export type StrikeTroughNode = {
+  type: 'strike-through';
+  children: Node[];
+};
+
 export type LinkNode = {
   type: 'link';
   href: string;
@@ -69,6 +74,15 @@ export type InlineCodeNode = {
   value: string;
 };
 
+export type DividerNode = {
+  type: 'divider';
+};
+
+export type BlockQuoteNode = {
+  type: 'blockquote';
+  children: Node[];
+};
+
 export type Node =
   | TextNode
   | ParagraphNode
@@ -77,7 +91,10 @@ export type Node =
   | ImageNode
   | HeadingNode
   | ItalicNode
+  | StrikeTroughNode
   | LineBreakNode
   | ListNode
   | CodeBlockNode
-  | InlineCodeNode;
+  | InlineCodeNode
+  | DividerNode
+  | BlockQuoteNode;

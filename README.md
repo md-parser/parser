@@ -4,12 +4,12 @@
 
 - [x] Lists indentation
 - [ ] Lists parse multiline
-- [ ] Bold with underline
-- [ ] Striketrough ~~xx~~
+- [x] Bold with \_\_
+- [x] Striketrough ~~xx~~
 - [ ] Tables
 - [ ] Task list `- [ ] Task` `- [x] Finished Task`
 - [ ] Blockquotes `> Blockquote`
-- [ ] Divider
+- [x] Divider
 - [ ] Character encoding `& > <` -> `&amp; &lt; &gt`;
 - [ ] Escaped chacaters \!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
 

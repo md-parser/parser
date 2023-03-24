@@ -1,5 +1,7 @@
 import {
+  BlockQuoteNode,
   CodeBlockNode,
+  DividerNode,
   HeadingNode,
   ImageNode,
   InlineCodeNode,
@@ -8,6 +10,7 @@ import {
   LinkNode,
   ListNode,
   Node,
+  StrikeTroughNode,
   StrongNode,
   TextNode,
 } from './nodes';
@@ -21,9 +24,9 @@ export function parse(markdown: string): Node[] {
   let index = 0;
   const length = markdown.length;
 
-  // function debug(str?: string) {
-  //   console.log('debug', str, JSON.stringify(markdown.slice(index)));
-  // }
+  function debug(str?: string) {
+    console.log('debug', str, JSON.stringify(markdown.slice(index)));
+  }
 
   function peek(index: number) {
     return markdown[index];
@@ -35,6 +38,16 @@ export function parse(markdown: string): Node[] {
 
   function peekAll(index: number) {
     return markdown.slice(index);
+  }
+
+  function peekLine(index: number) {
+    let line = '';
+
+    while (index < length && peek(index) !== EOL) {
+      line += peek(index++);
+    }
+
+    return line;
   }
 
   function lookAhead(value: string, from: number): boolean {
@@ -115,17 +128,23 @@ export function parse(markdown: string): Node[] {
   // Rename to isStartOfNode()?
   function isSpecialChar(index: number, skipEscape = false): boolean {
     const char = peek(index);
-    const next = peek(index + 1);
 
     if (!skipEscape && peek(index - 1) === ESCAPE) {
       return false;
     }
 
-    if (isEmphasis(index) || isUnorderedList(index) || isInlineCode(index)) {
+    if (
+      isEmphasis(index) ||
+      isUnorderedList(index) ||
+      isInlineCode(index) ||
+      isLink(index) ||
+      isImage(index) ||
+      isBlockQuote(index)
+    ) {
       return true;
     }
 
-    return char === EOL || (char === '!' && next === '[') || char === '[';
+    return char === EOL;
   }
 
   function isUnorderedList(index: number): boolean {
@@ -194,27 +213,31 @@ export function parse(markdown: string): Node[] {
   function isEmphasis(index: number): boolean {
     const char = peek(index);
 
-    if (char !== '*') {
+    if (char !== '*' && char !== '_' && char !== '~') {
       return false;
     }
 
-    const endString = peek(index + 1) === '*' ? '**' : '*';
+    if (char === '~' && peek(index + 1) !== '~') {
+      return false;
+    }
+
+    const endString = peek(index + 1) === char ? char + char : char;
 
     return lookAhead(endString, index + 1);
   }
 
-  function parseEmphasis(): StrongNode | ItalicNode {
+  function parseEmphasis(): StrongNode | ItalicNode | StrikeTroughNode {
     const char = peek(index);
     const nextChar = peek(index + 1);
 
-    if (char === '*' && nextChar === '*') {
+    if (nextChar === char) {
       next();
       next();
 
-      const children = parseSection('**');
+      const children = parseSection(char + char);
 
       return {
-        type: 'strong',
+        type: char === '~' ? 'strike-through' : 'strong',
         children,
       };
     }
@@ -223,7 +246,7 @@ export function parse(markdown: string): Node[] {
 
     return {
       type: 'italic',
-      children: parseSection('*'),
+      children: parseSection(char),
     };
   }
 
@@ -290,11 +313,12 @@ export function parse(markdown: string): Node[] {
       return parseBreak();
     }
 
-    if (char === '!' && peek(index + 1) === '[') {
+    // if (char === '!' && peek(index + 1) === '[') {
+    if (isImage(index)) {
       return parseImage();
     }
 
-    if (char === '[') {
+    if (isLink(index)) {
       return parseLink();
     }
 
@@ -312,6 +336,14 @@ export function parse(markdown: string): Node[] {
     return {
       type: 'linebreak',
     };
+  }
+
+  function isImage(index: number): boolean {
+    if (peek(index) !== '!') {
+      return false;
+    }
+
+    return /^!\[.*]\(.*\)/.test(peekLine(index));
   }
 
   function parseImage(): ImageNode {
@@ -346,6 +378,14 @@ export function parse(markdown: string): Node[] {
       alt,
       src,
     };
+  }
+
+  function isLink(index: number): boolean {
+    if (peek(index) !== '[') {
+      return false;
+    }
+
+    return /^\[.*]\(.*\)/.test(peekLine(index));
   }
 
   function parseLink(): LinkNode {
@@ -416,6 +456,52 @@ export function parse(markdown: string): Node[] {
     };
   }
 
+  function isDivider(index: number): boolean {
+    return peekPart(index, 3) === '---';
+  }
+
+  function parseDivider(): DividerNode {
+    setIndex(index + 3);
+
+    return {
+      type: 'divider',
+    };
+  }
+
+  function isBlockQuote(index: number): boolean {
+    return peek(index) === '>';
+  }
+
+  function parseBlockQuote(): BlockQuoteNode {
+    const children: Node[] = [];
+
+    while (index < length && isBlockQuote(index)) {
+      debug('parseBlockQuote');
+      // Skip >
+      next();
+
+      // Skip to beginning of text
+      while (peek(index) === ' ') {
+        next();
+      }
+
+      if (peek(index) === '>') {
+        children.push(parseBlockQuote());
+        continue;
+      }
+
+      children.push({
+        type: 'paragraph',
+        children: parseSection(EOL),
+      });
+    }
+
+    return {
+      type: 'blockquote',
+      children,
+    };
+  }
+
   while (index < length) {
     const nodeType = peek(index);
     const match = peekAll(index).match(/^[\n ]*/);
@@ -442,6 +528,16 @@ export function parse(markdown: string): Node[] {
 
     if (isCodeBlock(index)) {
       ast.push(parseCodeBlock());
+      continue;
+    }
+
+    if (isDivider(index)) {
+      ast.push(parseDivider());
+      continue;
+    }
+
+    if (isBlockQuote(index)) {
+      ast.push(parseBlockQuote());
       continue;
     }
 
