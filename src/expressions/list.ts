@@ -1,5 +1,5 @@
 import { MarkdownExpression } from '../expression';
-import { MarkdownListItemNode, MarkdownListNode } from '../nodes';
+import { MarkdownListNode } from '../nodes';
 
 const LIST_ITEM_REGEX = /^[\t |]*(?:[*+-]|\d+.) /;
 export class ListExpression extends MarkdownExpression<MarkdownListNode> {
@@ -21,63 +21,79 @@ export class ListExpression extends MarkdownExpression<MarkdownListNode> {
   }
 
   matches(): boolean {
-    // peekFromStartOfLine() ?
+    // Lists always start at the beginning of a line
+    if (this.peekAt(-1) !== '\n' && this.peekAt(-1) !== '') {
+      return false;
+    }
+
     return this.isList(this.peekLine());
   }
 
-  toNode(): MarkdownListNode {
+  parseList(depth = 0): MarkdownListNode {
     const node: MarkdownListNode = {
       type: 'list',
       ordered: this.isOrderedList(this.buffer()),
-      children: this.parseListItems(),
+      children: [],
     };
 
-    //
+    while (this.isList(this.peekLine())) {
+      const bull = this.getBull(this.buffer());
+      const ordered = this.isOrderedList(this.buffer());
+      let level = 0;
+
+      while (level < bull.length && (bull.charAt(level) === ' ' || bull.charAt(level) === '\t')) {
+        level++;
+      }
+
+      // Break current list parsing when next list entry changes from ordered to unordered or vice versa
+      if (level === depth && node.ordered !== ordered) {
+        break;
+      }
+
+      // Found list item at current depth
+      if (level === depth) {
+        this.skip(bull.length);
+
+        node.children.push({
+          type: 'list-item',
+          children: this.parseInline(
+            () =>
+              (this.peek() === '\n' && this.peekAt(1) === '\n') ||
+              this.isList(this.buffer().slice(1)),
+          ),
+        });
+
+        if (this.peek() === '\n') {
+          this.skip(1);
+        }
+      }
+
+      if (level > depth) {
+        node.children.push(this.parseList(level));
+        continue;
+      }
+
+      if (level < depth) {
+        break;
+      }
+
+      // Two line breaks, end of list
+      if (this.peekAt(0) === '\n' && this.peekAt(1) === '\n') {
+        break;
+      }
+    }
 
     return node;
   }
 
-  parseListItems(depth = 0): MarkdownListItemNode[] {
-    const nodes: MarkdownListItemNode[] = [];
+  toNode(): MarkdownListNode {
+    const bull = this.getBull(this.buffer());
+    let level = 0;
 
-    while (this.isList(this.buffer())) {
-      const bull = this.getBull(this.buffer());
-      let level = 0;
-
-      while (this.peekAt(level) === ' ' || this.peekAt(level) === '\t') {
-        level++;
-      }
-
-      if (level !== depth) {
-        console.log('<-->', level);
-        break;
-      }
-
-      this.skip(bull.length);
-
-      nodes.push({
-        type: 'list-item',
-        children: this.parseInline(() => {
-          return (this.peek() === '\n' && this.peekAt(1) === '\n') || this.isList(this.buffer());
-        }),
-      });
-
-      // throw new Error('Not implemented');
-
-      // this.next();
-
-      // if (this.peek() === '\n') {
-      //   this.index++;
-      //   continue;
-      // }
-
-      // if (!this.isList(this.peekLine())) {
-      //   break;
-      // }
-
-      // items.push(this.parseListItem());
+    while (level < bull.length && (bull.charAt(level) === ' ' || bull.charAt(level) === '\t')) {
+      level++;
     }
 
-    return nodes;
+    return this.parseList(level);
   }
 }

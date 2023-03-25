@@ -1,6 +1,6 @@
 import { parseMarkdown } from '../parseMarkdown';
 
-describe.skip('parse.list', () => {
+describe('parse.list', () => {
   it('should parse unordered list', () => {
     const ast = parseMarkdown('* Item 1\n* Item 2');
 
