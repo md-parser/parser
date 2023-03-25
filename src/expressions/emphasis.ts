@@ -5,7 +5,7 @@ type EmphasisNode = MarkdownItalicNode | MarkdownStrikeTroughNode | MarkdownStro
 
 export class EmphasisExpression extends MarkdownExpression<EmphasisNode> {
   public type = 'inline' as const;
-  public name = 'heading';
+  public name = 'emphasis';
 
   matches(): boolean {
     const char = this.peek();

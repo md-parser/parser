@@ -15,6 +15,14 @@ const parser = new MarkdownParser('# Hello World');
 const ast = parser.parse();
 ```
 
+Or
+
+```ts
+import { parse } from '@saartje87/md-ast';
+
+const parser = parse('# Hello World');
+```
+
 ## TODO
 
 - [ ] Lists indentation
