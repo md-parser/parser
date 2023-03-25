@@ -1,8 +1,8 @@
-import { parse } from '../parser';
+import { parseMarkdown } from '../parseMarkdown';
 
 describe('parse.blockquote', () => {
   it('should parse blockquote', () => {
-    const ast = parse('> Hello world');
+    const ast = parseMarkdown('> Hello world');
 
     expect(ast).toEqual([
       {
@@ -14,6 +14,50 @@ describe('parse.blockquote', () => {
               {
                 type: 'text',
                 value: 'Hello world',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should parse blockquote', () => {
+    const ast = parseMarkdown('> Hello world\n>> Line 2\n> Line 3');
+
+    expect(ast).toEqual([
+      {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'paragraph',
+            children: [
+              {
+                type: 'text',
+                value: 'Hello world',
+              },
+            ],
+          },
+          {
+            type: 'blockquote',
+            children: [
+              {
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Line 2',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'paragraph',
+            children: [
+              {
+                type: 'text',
+                value: 'Line 3',
               },
             ],
           },

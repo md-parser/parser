@@ -1,8 +1,8 @@
-import { parse } from '../parser';
+import { parseMarkdown } from '../parseMarkdown';
 
 describe('parse.divider', () => {
   it('should parse divider', () => {
-    const ast = parse('---');
+    const ast = parseMarkdown('---');
 
     expect(ast).toEqual([
       {

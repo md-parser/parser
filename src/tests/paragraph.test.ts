@@ -1,8 +1,8 @@
-import { parse } from '../parser';
+import { parseMarkdown } from '../parseMarkdown';
 
 describe('parse.paragraph', () => {
   it('should parse paragraph', () => {
-    const ast = parse('Hello world');
+    const ast = parseMarkdown('Hello world');
 
     expect(ast).toEqual([
       {
@@ -18,7 +18,7 @@ describe('parse.paragraph', () => {
   });
 
   it('should parse multiple lines paragraph', () => {
-    const ast = parse('Hello\nworld');
+    const ast = parseMarkdown('Hello\nworld');
 
     expect(ast).toEqual([
       {
@@ -29,7 +29,7 @@ describe('parse.paragraph', () => {
             value: 'Hello',
           },
           {
-            type: 'linebreak',
+            type: 'line-break',
           },
           {
             type: 'text',
@@ -41,7 +41,7 @@ describe('parse.paragraph', () => {
   });
 
   it('should parse multiple paragraphs', () => {
-    const ast = parse('Part 1\n\nPart 2');
+    const ast = parseMarkdown('Part 1\n\nPart 2');
 
     expect(ast).toEqual([
       {

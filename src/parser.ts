@@ -1,89 +1,153 @@
-import {
-  BlockQuoteNode,
-  CodeBlockNode,
-  DividerNode,
-  HeadingNode,
-  ImageNode,
-  InlineCodeNode,
-  ItalicNode,
-  LineBreakNode,
-  LinkNode,
-  ListNode,
-  Node,
-  StrikeTroughNode,
-  StrongNode,
-  TextNode,
-} from './nodes';
+import { MarkdownExpression } from './expression';
+import { BlockquoteExpression } from './expressions/blockquote';
+import { CodeExpression } from './expressions/codeblock';
+import { DividerExpression } from './expressions/divider';
+import { EmphasisExpression } from './expressions/emphasis';
+import { HeadingExpression } from './expressions/heading';
+import { ImageExpression } from './expressions/image';
+import { InlineCodeExpression } from './expressions/inlineCode';
+import { LineBreakExpression } from './expressions/lineBreak';
+import { LinkExpression } from './expressions/link';
+import { MarkdownNode, MarkdownTextNode } from './nodes';
 
-const ESCAPE = '\\';
-const EOL = '\n';
+export class MarkdownParser {
+  private expressions: MarkdownExpression<MarkdownNode>[];
+  private markdown: string;
+  private length: number;
+  private index = 0;
 
-export function parse(markdown: string): Node[] {
-  const ast: Node[] = [];
+  constructor(markdown: string) {
+    this.markdown = markdown;
+    this.length = markdown.length;
 
-  let index = 0;
-  const length = markdown.length;
-
-  function debug(str?: string) {
-    console.log('debug', str, JSON.stringify(markdown.slice(index)));
+    this.expressions = [
+      // new ListExpression(this),
+      new HeadingExpression(this),
+      new EmphasisExpression(this),
+      new LineBreakExpression(this),
+      new BlockquoteExpression(this),
+      new DividerExpression(this),
+      new LinkExpression(this),
+      new ImageExpression(this),
+      new InlineCodeExpression(this),
+      new CodeExpression(this),
+    ];
   }
 
-  function peek(index: number) {
-    return markdown[index];
-  }
-
-  function peekPart(index: number, length: number) {
-    return markdown.slice(index, index + length);
-  }
-
-  function peekAll(index: number) {
-    return markdown.slice(index);
-  }
-
-  function peekLine(index: number) {
-    let line = '';
-
-    while (index < length && peek(index) !== EOL) {
-      line += peek(index++);
-    }
-
-    return line;
-  }
-
-  function lookAhead(value: string, from: number): boolean {
-    return markdown.includes(value, from);
-  }
-
-  function next() {
-    return markdown[index++];
-  }
-
-  function setIndex(value: number) {
-    index = value;
-  }
-
-  function skipEmpty() {
-    while (index < length && (peek(index) === ' ' || peek(index) === EOL)) {
-      index++;
-    }
-  }
-
-  function parseText(stopAtChar?: string): TextNode {
-    let value = '';
-    const stopAtCharLength = stopAtChar ? stopAtChar.length : 0;
-
-    while (index < length && !isSpecialChar(index)) {
-      if (stopAtChar && peekPart(index, stopAtCharLength) === stopAtChar) {
-        break;
+  getMatchingExpression(type: 'block' | 'inline'): MarkdownExpression<MarkdownNode> | null {
+    for (const expression of this.expressions) {
+      if (
+        (expression.type === type || expression.type === 'inline-block') &&
+        expression.matches()
+      ) {
+        return expression;
       }
+    }
 
-      // Remove escape character
-      if (peek(index) === ESCAPE && isSpecialChar(index + 1, true)) {
-        next();
+    return null;
+  }
+
+  parseExpression(type: 'block' | 'inline'): MarkdownNode | null {
+    const expression = this.getMatchingExpression(type);
+
+    if (expression) {
+      return expression.toNode();
+    }
+
+    return null;
+  }
+
+  parse(): MarkdownNode[] {
+    const nodes: MarkdownNode[] = [];
+
+    while (this.index < this.length) {
+      if (this.peek() === '\n') {
+        this.index++;
         continue;
       }
 
-      value += next();
+      nodes.push(this.parseBlock());
+    }
+
+    return nodes;
+  }
+
+  parseBlock(): MarkdownNode {
+    const node = this.parseExpression('block');
+
+    if (node) {
+      return node;
+    }
+
+    return {
+      type: 'paragraph',
+      children: this.parseInline(() => {
+        return this.peek() === '\n' && this.peekAt(1) === '\n';
+      }),
+    };
+  }
+
+  parseInline(predicate?: () => boolean): MarkdownNode[] {
+    const nodes = [];
+
+    while (this.index < this.length) {
+      if (predicate && predicate()) {
+        // console.log('predicate kill', JSON.stringify(this.buffer()));
+        return nodes;
+      }
+
+      // Beginning of new block
+      if (this.peek() === '\n') {
+        this.next();
+
+        if (this.getMatchingExpression('block')) {
+          return nodes;
+        }
+
+        this.prev();
+      }
+
+      const node = this.parseExpression('inline');
+
+      if (node) {
+        nodes.push(node);
+      }
+
+      if (!node) {
+        const textNode = this.parseText(predicate);
+
+        if (textNode) {
+          nodes.push(textNode);
+        }
+      }
+    }
+
+    return nodes;
+  }
+
+  parseText(predicate?: () => boolean): MarkdownTextNode | null {
+    let value = '';
+    let char = '';
+
+    while ((char = this.peek())) {
+      if (char === '\n') {
+        break;
+      }
+
+      if (predicate && predicate()) {
+        break;
+      }
+
+      if (this.getMatchingExpression('inline')) {
+        break;
+      }
+
+      value += char;
+      this.next();
+    }
+
+    if (value.length === 0) {
+      return null;
     }
 
     return {
@@ -92,460 +156,73 @@ export function parse(markdown: string): Node[] {
     };
   }
 
-  // Rename to parseInline?
-  function parseSection(stopAtChar?: string): Node[] {
-    const nodes = [];
-    const stopAtCharLength = stopAtChar ? stopAtChar.length : 0;
-
-    while (index < length) {
-      if (stopAtChar && peekPart(index, stopAtCharLength) === stopAtChar) {
-        setIndex(index + stopAtCharLength);
-        break;
-      }
-
-      if (peek(index) === EOL && (peek(index + 1) === EOL || index + 1 >= length)) {
-        break;
-      }
-
-      if (isSpecialChar(index)) {
-        const node = parseSpecial();
-
-        if (!node) {
-          nodes.push(parseText());
-          break;
-        }
-
-        nodes.push(node);
-        continue;
-      }
-
-      nodes.push(parseText(stopAtChar));
-    }
-
-    return nodes;
+  buffer(): string {
+    return this.markdown.slice(this.index);
   }
 
-  // Rename to isStartOfNode()?
-  function isSpecialChar(index: number, skipEscape = false): boolean {
-    const char = peek(index);
-
-    if (!skipEscape && peek(index - 1) === ESCAPE) {
-      return false;
-    }
-
-    if (
-      isEmphasis(index) ||
-      isUnorderedList(index) ||
-      isInlineCode(index) ||
-      isLink(index) ||
-      isImage(index) ||
-      isBlockQuote(index)
-    ) {
-      return true;
-    }
-
-    return char === EOL;
+  next(): string {
+    return this.markdown.charAt(this.index++);
   }
 
-  function isUnorderedList(index: number): boolean {
-    const buffer = peekAll(index);
-
-    return /^[\t |]*[*+-] /.test(buffer);
+  prev(): string {
+    return this.markdown.charAt(--this.index);
   }
 
-  function isList(index: number): boolean {
-    return /^[\t |]*([*+-]|\d+.) /.test(peekAll(index));
+  peek(): string {
+    return this.markdown.charAt(this.index);
   }
 
-  function parseList(depth = 0): ListNode {
-    const node: ListNode = {
-      type: 'list',
-      ordered: /^[\t |]*\d+. /.test(peekAll(index)),
-      children: [],
-    };
-
-    while (index < length && isList(index)) {
-      let level = 0;
-
-      while (peek(index + level) === ' ' || peek(index + level) === '\t') {
-        level++;
-      }
-
-      const match = peekAll(index).match(/^[\t |]*([*+-]|\d+.) /); //  /^[ |\t]*\d+. /.match(peekAll(index));
-
-      if (!match) {
-        break;
-      }
-
-      // Break current list parsing when next list entry changes from ordered to unordered or vice versa
-      if (level === depth && node.ordered !== /\d+./.test(match[1])) {
-        break;
-      }
-
-      if (level === depth) {
-        setIndex(index + match[0].length);
-
-        node.children.push({
-          type: 'list-item',
-          // TODO Should spawn over multiple lines, then check for EOL+EOL or EOL+NEWLINE?
-          children: parseSection(EOL),
-        });
-      }
-
-      if (level > depth) {
-        node.children.push(parseList(level));
-        continue;
-      }
-
-      if (level < depth) {
-        break;
-      }
-
-      // Two line breaks, end of list
-      if (peek(index - 1) === EOL && peek(index) === EOL) {
-        break;
-      }
-    }
-
-    return node;
+  peekAt(index: number): string {
+    return this.markdown.charAt(this.index + index);
   }
 
-  function isEmphasis(index: number): boolean {
-    const char = peek(index);
-
-    if (char !== '*' && char !== '_' && char !== '~') {
-      return false;
-    }
-
-    if (char === '~' && peek(index + 1) !== '~') {
-      return false;
-    }
-
-    const endString = peek(index + 1) === char ? char + char : char;
-
-    return lookAhead(endString, index + 1);
+  peekSet(index: number, count: number): string {
+    return this.markdown.slice(this.index + index, this.index + index + count);
   }
 
-  function parseEmphasis(): StrongNode | ItalicNode | StrikeTroughNode {
-    const char = peek(index);
-    const nextChar = peek(index + 1);
+  peekLine(): string {
+    const buffer = this.buffer();
+    const newlineIndex = buffer.indexOf('\n');
 
-    if (nextChar === char) {
-      next();
-      next();
-
-      const children = parseSection(char + char);
-
-      return {
-        type: char === '~' ? 'strike-through' : 'strong',
-        children,
-      };
+    if (newlineIndex === -1) {
+      return buffer;
     }
 
-    next();
-
-    return {
-      type: 'italic',
-      children: parseSection(char),
-    };
+    return buffer.substring(0, newlineIndex);
   }
 
-  function parseRawValue(stopAtChar: string): string {
-    const start = index;
-    const end = markdown.indexOf(stopAtChar, index);
+  peekFromStartOfLine(): string {
+    const buffer = this.buffer();
+    const newlineIndex = buffer.lastIndexOf('\n', this.index);
 
-    setIndex(end + stopAtChar.length);
+    if (newlineIndex === -1) {
+      return buffer;
+    }
 
-    return markdown.slice(start, end);
+    return buffer.substring(0, newlineIndex);
   }
 
-  function isInlineCode(index: number): boolean {
-    // Make sure it's not an empty code block
-    if (peek(index) !== '`' || peek(index + 1) === '`') {
-      return false;
+  readUntil(predicate: () => boolean): string {
+    let value = '';
+
+    while (this.index < this.length && !predicate()) {
+      value += this.next();
     }
 
-    return lookAhead('`', index + 1);
+    return value;
   }
 
-  function parseInlineCode(): InlineCodeNode {
-    // Skip `
-    next();
-
-    return {
-      type: 'inline-code',
-      value: parseRawValue('`'),
-    };
+  skip(count: number): void {
+    this.index += count;
   }
 
-  function isCodeBlock(index: number): boolean {
-    return peekPart(index, 3) === '```' && lookAhead('```', index + 3);
+  skipUntil(predicate: () => boolean): void {
+    while (this.index < this.length && !predicate()) {
+      this.index++;
+    }
   }
 
-  function parseCodeBlock(): CodeBlockNode {
-    const language = markdown.slice(index + 3, markdown.indexOf(EOL, index + 3));
-
-    setIndex(markdown.indexOf(EOL, index + 3) + 1);
-
-    return {
-      type: 'code-block',
-      language,
-      value: parseRawValue('\n```'),
-    };
+  skipWhitespace(): void {
+    this.skipUntil(() => this.peek() !== ' ');
   }
-
-  function parseSpecial(): Node | void {
-    const char = peek(index);
-
-    if (isEmphasis(index)) {
-      return parseEmphasis();
-    }
-
-    if (isInlineCode(index)) {
-      return parseInlineCode();
-    }
-
-    if (isInlineCode(index)) {
-      return parseCodeBlock();
-    }
-
-    if (char === EOL && peek(index + 1) !== EOL) {
-      return parseBreak();
-    }
-
-    // if (char === '!' && peek(index + 1) === '[') {
-    if (isImage(index)) {
-      return parseImage();
-    }
-
-    if (isLink(index)) {
-      return parseLink();
-    }
-
-    console.log('No match!?', JSON.stringify(char), JSON.stringify(markdown.slice(index)));
-  }
-
-  function parseBreak(): LineBreakNode | void {
-    // skip ' ' and '\n'
-    skipEmpty();
-
-    if (index >= length) {
-      return;
-    }
-
-    return {
-      type: 'linebreak',
-    };
-  }
-
-  function isImage(index: number): boolean {
-    if (peek(index) !== '!') {
-      return false;
-    }
-
-    return /^!\[.*]\(.*\)/.test(peekLine(index));
-  }
-
-  function parseImage(): ImageNode {
-    let alt = '';
-    let src = '';
-
-    // skip !
-    next();
-
-    // skip [
-    next();
-
-    while (index < length && peek(index) !== ']') {
-      alt += next();
-    }
-
-    // skip ]
-    next();
-
-    // skip (
-    next();
-
-    while (index < length && peek(index) !== ')') {
-      src += next();
-    }
-
-    // skip )
-    next();
-
-    return {
-      type: 'image',
-      alt,
-      src,
-    };
-  }
-
-  function isLink(index: number): boolean {
-    if (peek(index) !== '[') {
-      return false;
-    }
-
-    return /^\[.*]\(.*\)/.test(peekLine(index));
-  }
-
-  function parseLink(): LinkNode {
-    let href = '';
-
-    // skip [
-    next();
-
-    const children = parseSection(']');
-
-    // skip (
-    next();
-
-    while (index < length && peek(index) !== ')') {
-      href += next();
-    }
-
-    // skip )
-    next();
-
-    return {
-      type: 'link',
-      href,
-      children,
-    };
-  }
-
-  function isHeading(index: number): boolean {
-    let level = 0;
-
-    if (peek(index) !== '#') {
-      return false;
-    }
-
-    while (index < length && peek(index) === '#') {
-      level++;
-      index++;
-    }
-
-    if (level > 6) {
-      return false;
-    }
-
-    if (peek(index) !== ' ') {
-      return false;
-    }
-
-    return true;
-  }
-
-  function parseHeading(): HeadingNode {
-    let level = 0;
-
-    while (index < length && peek(index) === '#') {
-      level++;
-      next();
-    }
-
-    // Skip to beginning of text
-    while (peek(index) === ' ') {
-      next();
-    }
-
-    return {
-      type: 'heading',
-      level: level as HeadingNode['level'],
-      children: parseSection(EOL),
-    };
-  }
-
-  function isDivider(index: number): boolean {
-    return peekPart(index, 3) === '---';
-  }
-
-  function parseDivider(): DividerNode {
-    setIndex(index + 3);
-
-    return {
-      type: 'divider',
-    };
-  }
-
-  function isBlockQuote(index: number): boolean {
-    return peek(index) === '>';
-  }
-
-  function parseBlockQuote(): BlockQuoteNode {
-    const children: Node[] = [];
-
-    while (index < length && isBlockQuote(index)) {
-      debug('parseBlockQuote');
-      // Skip >
-      next();
-
-      // Skip to beginning of text
-      while (peek(index) === ' ') {
-        next();
-      }
-
-      if (peek(index) === '>') {
-        children.push(parseBlockQuote());
-        continue;
-      }
-
-      children.push({
-        type: 'paragraph',
-        children: parseSection(EOL),
-      });
-    }
-
-    return {
-      type: 'blockquote',
-      children,
-    };
-  }
-
-  while (index < length) {
-    const nodeType = peek(index);
-    const match = peekAll(index).match(/^[\n ]*/);
-
-    // Skip empty lines
-    if (match && match[0]) {
-      setIndex(index + match[0].length);
-      continue;
-    }
-
-    if (nodeType === EOL) {
-      next();
-    }
-
-    if (isHeading(index)) {
-      ast.push(parseHeading());
-      continue;
-    }
-
-    if (isList(index)) {
-      ast.push(parseList());
-      continue;
-    }
-
-    if (isCodeBlock(index)) {
-      ast.push(parseCodeBlock());
-      continue;
-    }
-
-    if (isDivider(index)) {
-      ast.push(parseDivider());
-      continue;
-    }
-
-    if (isBlockQuote(index)) {
-      ast.push(parseBlockQuote());
-      continue;
-    }
-
-    ast.push({
-      type: 'paragraph',
-      children: parseSection(),
-    });
-  }
-
-  return ast;
 }

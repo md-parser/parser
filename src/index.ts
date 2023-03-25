@@ -1,2 +1,3 @@
 export * from './nodes';
-export * from './parser';
+export { parseMarkdown } from './parseMarkdown';
+export { MarkdownParser } from './parser';

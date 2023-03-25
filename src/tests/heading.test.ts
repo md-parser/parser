@@ -1,8 +1,8 @@
-import { parse } from '../parser';
+import { parseMarkdown } from '../parseMarkdown';
 
 describe('parse.heading', () => {
   it('should parse heading', () => {
-    const ast = parse('# Title');
+    const ast = parseMarkdown('# Title');
 
     expect(ast).toEqual([
       {
@@ -19,7 +19,7 @@ describe('parse.heading', () => {
   });
 
   it('should parse heading level', () => {
-    const ast = parse('###### Title');
+    const ast = parseMarkdown('###### Title');
 
     expect(ast).toEqual([
       {
@@ -36,7 +36,7 @@ describe('parse.heading', () => {
   });
 
   it('should treat a heading >6 as regular text', () => {
-    const ast = parse('######## Title');
+    const ast = parseMarkdown('######## Title');
 
     expect(ast).toEqual([
       {

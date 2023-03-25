@@ -1,100 +1,95 @@
-export type RootNode = {
-  type: 'root';
-  children: Node[];
-};
-
-export type TextNode = {
+export type MarkdownTextNode = {
   type: 'text';
   value: string;
 };
 
-export type ParagraphNode = {
+export type MarkdownParagraphNode = {
   type: 'paragraph';
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type StrongNode = {
+export type MarkdownStrongNode = {
   type: 'strong';
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type ItalicNode = {
+export type MarkdownItalicNode = {
   type: 'italic';
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type StrikeTroughNode = {
+export type MarkdownStrikeTroughNode = {
   type: 'strike-through';
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type LinkNode = {
+export type MarkdownLinkNode = {
   type: 'link';
   href: string;
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type ImageNode = {
+export type MarkdownImageNode = {
   type: 'image';
   alt: string;
   src: string;
 };
 
-export type HeadingNode = {
+export type MarkdownHeadingNode = {
   type: 'heading';
   level: number;
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type LineBreakNode = {
-  type: 'linebreak';
+export type MarkdownLineBreakNode = {
+  type: 'line-break';
 };
 
-export type ListNode = {
+export type MarkdownListNode = {
   type: 'list';
   ordered: boolean;
   // if ordered is true, then start is the starting number
   // start: number;
-  children: (ListNode | ListItemNode)[];
+  children: (MarkdownListNode | MarkdownListItemNode)[];
 };
 
-export type ListItemNode = {
+export type MarkdownListItemNode = {
   type: 'list-item';
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type CodeBlockNode = {
-  type: 'code-block';
+export type MarkdownCodeNode = {
+  type: 'code';
   value: string;
   language: string;
 };
 
-export type InlineCodeNode = {
+export type MarkdownInlineCodeNode = {
   type: 'inline-code';
   value: string;
 };
 
-export type DividerNode = {
+export type MarkdownDividerNode = {
   type: 'divider';
 };
 
-export type BlockQuoteNode = {
+export type MarkdownBlockQuoteNode = {
   type: 'blockquote';
-  children: Node[];
+  children: MarkdownNode[];
 };
 
-export type Node =
-  | TextNode
-  | ParagraphNode
-  | StrongNode
-  | LinkNode
-  | ImageNode
-  | HeadingNode
-  | ItalicNode
-  | StrikeTroughNode
-  | LineBreakNode
-  | ListNode
-  | CodeBlockNode
-  | InlineCodeNode
-  | DividerNode
-  | BlockQuoteNode;
+export type MarkdownNode =
+  | MarkdownTextNode
+  | MarkdownParagraphNode
+  | MarkdownStrongNode
+  | MarkdownLinkNode
+  | MarkdownImageNode
+  | MarkdownHeadingNode
+  | MarkdownItalicNode
+  | MarkdownStrikeTroughNode
+  | MarkdownLineBreakNode
+  | MarkdownListNode
+  | MarkdownCodeNode
+  | MarkdownInlineCodeNode
+  | MarkdownDividerNode
+  | MarkdownBlockQuoteNode;

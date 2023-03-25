@@ -1,8 +1,8 @@
-import { parse } from '../parser';
+import { parseMarkdown } from '../parseMarkdown';
 
 describe('parse.link', () => {
   it('should parse link', () => {
-    const ast = parse('[link text](https://example.com)');
+    const ast = parseMarkdown('[link text](https://example.com)');
 
     expect(ast).toEqual([
       {

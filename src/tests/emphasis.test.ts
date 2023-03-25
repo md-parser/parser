@@ -1,8 +1,8 @@
-import { parse } from '../parser';
+import { parseMarkdown } from '../parseMarkdown';
 
 describe('parse.emphasis', () => {
   it('should parse italic with *', () => {
-    const ast = parse('*Hello world*');
+    const ast = parseMarkdown('*Hello world*');
 
     expect(ast).toEqual([
       {
@@ -23,7 +23,7 @@ describe('parse.emphasis', () => {
   });
 
   it('should parse italic with _', () => {
-    const ast = parse('_Hello world_');
+    const ast = parseMarkdown('_Hello world_');
 
     expect(ast).toEqual([
       {
@@ -44,7 +44,7 @@ describe('parse.emphasis', () => {
   });
 
   it('should parse bold with with **', () => {
-    const ast = parse('**Hello world**');
+    const ast = parseMarkdown('**Hello world**');
 
     expect(ast).toEqual([
       {
@@ -65,7 +65,7 @@ describe('parse.emphasis', () => {
   });
 
   it('should parse bold with __', () => {
-    const ast = parse('__Hello world__');
+    const ast = parseMarkdown('__Hello world__');
 
     expect(ast).toEqual([
       {
@@ -86,7 +86,7 @@ describe('parse.emphasis', () => {
   });
 
   it('should parse strikethrough with ~~', () => {
-    const ast = parse('~~Hello world~~');
+    const ast = parseMarkdown('~~Hello world~~');
 
     expect(ast).toEqual([
       {
