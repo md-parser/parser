@@ -8,20 +8,23 @@ import { ImageExpression } from './expressions/image';
 import { InlineCodeExpression } from './expressions/inlineCode';
 import { LineBreakExpression } from './expressions/lineBreak';
 import { LinkExpression } from './expressions/link';
+import { ListExpression } from './expressions/list';
 import { MarkdownNode, MarkdownTextNode } from './nodes';
+import { Expression } from './types';
 
 export class MarkdownParser {
   private expressions: MarkdownExpression<MarkdownNode>[];
-  private markdown: string;
+  private readonly markdown: string;
   private length: number;
   private index = 0;
 
-  constructor(markdown: string) {
+  // TODO Move markdown parameter to parse method?
+  constructor(markdown: string, expressions: Expression[] = []) {
     this.markdown = markdown;
     this.length = markdown.length;
 
     this.expressions = [
-      // new ListExpression(this),
+      new ListExpression(this),
       new HeadingExpression(this),
       new EmphasisExpression(this),
       new LineBreakExpression(this),
@@ -31,6 +34,7 @@ export class MarkdownParser {
       new ImageExpression(this),
       new InlineCodeExpression(this),
       new CodeExpression(this),
+      ...expressions.map((expression) => new expression(this)),
     ];
   }
 
@@ -188,7 +192,7 @@ export class MarkdownParser {
       return buffer;
     }
 
-    return buffer.substring(0, newlineIndex);
+    return buffer.slice(0, Math.max(0, newlineIndex));
   }
 
   peekFromStartOfLine(): string {
@@ -199,7 +203,7 @@ export class MarkdownParser {
       return buffer;
     }
 
-    return buffer.substring(0, newlineIndex);
+    return buffer.slice(0, Math.max(0, newlineIndex));
   }
 
   readUntil(predicate: () => boolean): string {
