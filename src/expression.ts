@@ -42,20 +42,12 @@ export abstract class MarkdownExpression<T extends MarkdownNode> {
     return this.parser.peekLine();
   }
 
-  protected peekFromStartOfLine(): string {
-    return this.parser.peekFromStartOfLine();
-  }
-
   protected skip(count: number): void {
     this.parser.skip(count);
   }
 
   protected skipUntil(predicate: () => boolean): void {
     this.parser.skipUntil(predicate);
-  }
-
-  protected skipWhitespace(): void {
-    this.parser.skipWhitespace();
   }
 
   protected readUntil(predicate: () => boolean): string {

@@ -78,6 +78,23 @@ export type MarkdownBlockQuoteNode = {
   children: MarkdownNode[];
 };
 
+export type MarkdownTableNode = {
+  type: 'table';
+  header: MarkdownTableRowNode;
+  rows: MarkdownTableRowNode[];
+};
+
+export type MarkdownTableRowNode = {
+  type: 'table-row';
+  children: MarkdownTableCellNode[];
+};
+
+export type MarkdownTableCellNode = {
+  type: 'table-cell';
+  align: 'left' | 'center' | 'right';
+  children: MarkdownNode[];
+};
+
 export type MarkdownNode =
   | MarkdownTextNode
   | MarkdownParagraphNode
@@ -92,4 +109,5 @@ export type MarkdownNode =
   | MarkdownCodeNode
   | MarkdownInlineCodeNode
   | MarkdownDividerNode
-  | MarkdownBlockQuoteNode;
+  | MarkdownBlockQuoteNode
+  | MarkdownTableNode;

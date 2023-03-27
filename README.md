@@ -25,13 +25,14 @@ const parser = parse('# Hello World');
 
 ## TODO
 
-- [ ] Lists indentation
-- [ ] Lists parse multiline
+- [x] Lists indentation
+- [x] Lists parse multiline
 - [x] Bold with \_\_
 - [x] Striketrough ~~xx~~
-- [ ] Tables
+- [x] Tables
 - [ ] Task list `- [ ] Task` `- [x] Finished Task`
 - [x] Blockquotes `> Blockquote`
 - [x] Divider
 - [ ] Character encoding `& > <` -> `&amp; &lt; &gt`;
 - [ ] Escaped chacaters \!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
+- [ ] sub & superscript

@@ -9,6 +9,7 @@ import { InlineCodeExpression } from './expressions/inlineCode';
 import { LineBreakExpression } from './expressions/lineBreak';
 import { LinkExpression } from './expressions/link';
 import { ListExpression } from './expressions/list';
+import { TableExpression } from './expressions/table';
 import { MarkdownNode, MarkdownTextNode } from './nodes';
 import { Expression } from './types';
 
@@ -34,6 +35,7 @@ export class MarkdownParser {
       new ImageExpression(this),
       new InlineCodeExpression(this),
       new CodeExpression(this),
+      new TableExpression(this),
       ...expressions.map((expression) => new expression(this)),
     ];
   }
@@ -195,17 +197,6 @@ export class MarkdownParser {
     return buffer.slice(0, Math.max(0, newlineIndex));
   }
 
-  peekFromStartOfLine(): string {
-    const buffer = this.buffer();
-    const newlineIndex = buffer.lastIndexOf('\n', this.index);
-
-    if (newlineIndex === -1) {
-      return buffer;
-    }
-
-    return buffer.slice(0, Math.max(0, newlineIndex));
-  }
-
   readUntil(predicate: () => boolean): string {
     let value = '';
 
@@ -224,9 +215,5 @@ export class MarkdownParser {
     while (this.index < this.length && !predicate()) {
       this.index++;
     }
-  }
-
-  skipWhitespace(): void {
-    this.skipUntil(() => this.peek() !== ' ');
   }
 }
