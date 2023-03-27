@@ -1,3 +1,7 @@
+export type MarkdownNodeBase = {
+  type: string;
+};
+
 export type MarkdownTextNode = {
   type: 'text';
   value: string;
@@ -95,6 +99,16 @@ export type MarkdownTableCellNode = {
   children: MarkdownNode[];
 };
 
+export type MarkdownSubscriptNode = {
+  type: 'subscript';
+  children: MarkdownNode[];
+};
+
+export type MarkdownSuperscriptNode = {
+  type: 'superscript';
+  children: MarkdownNode[];
+};
+
 export type MarkdownNode =
   | MarkdownTextNode
   | MarkdownParagraphNode
@@ -110,4 +124,6 @@ export type MarkdownNode =
   | MarkdownInlineCodeNode
   | MarkdownDividerNode
   | MarkdownBlockQuoteNode
-  | MarkdownTableNode;
+  | MarkdownTableNode
+  | MarkdownSubscriptNode
+  | MarkdownSuperscriptNode;

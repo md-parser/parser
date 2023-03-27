@@ -1,7 +1,7 @@
-import { MarkdownNode } from './nodes';
+import { MarkdownNode, MarkdownNodeBase } from './nodes';
 import { MarkdownParser } from './parser';
 
-export abstract class MarkdownExpression<T extends MarkdownNode> {
+export abstract class MarkdownExpression<T extends MarkdownNodeBase> {
   public abstract name: string;
   public abstract type: 'block' | 'inline' | 'inline-block';
 
