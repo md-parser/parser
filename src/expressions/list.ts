@@ -1,7 +1,7 @@
 import { MarkdownExpression } from '../expression';
 import { MarkdownListNode } from '../nodes';
 
-const LIST_ITEM_REGEX = /^[\t |]*(?:[*+-]|\d+.) /;
+const LIST_ITEM_REGEX = /^[\t |]*(?:[*+-]|\d+\.) /;
 export class ListExpression extends MarkdownExpression<MarkdownListNode> {
   public type = 'inline-block' as const;
   public name = 'list';
