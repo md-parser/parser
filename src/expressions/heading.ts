@@ -6,25 +6,22 @@ export class HeadingExpression extends MarkdownExpression<MarkdownHeadingNode> {
   public name = 'heading';
 
   matches(): boolean {
-    let level = 0;
-    const length = 8; // More than 6 is not valid
+    const match = this.buffer().match(/^\s*(#{1,6})\s/);
 
-    if (this.peek() !== '#') {
+    if (!match) {
       return false;
     }
 
-    while (level < length && this.peekAt(level) === '#') {
-      level++;
-    }
-
-    if (level > 6) {
+    if (match[1].length > 6) {
       return false;
     }
 
-    return this.peekAt(level) === ' ';
+    return true;
   }
 
   toNode(): MarkdownHeadingNode {
+    this.skipUntil(() => this.peek() === '#');
+
     const level = this.peekLine().indexOf(' ');
 
     this.skip(level + 1);
