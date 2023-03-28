@@ -126,7 +126,12 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
         this.skipUntil(() => this.peek() !== '|' && this.peek() !== ' ');
       }
 
-      this.skipUntil(() => this.peek() === '|');
+      // Skip EOL
+      if (this.peek() === '\n') {
+        this.skip(1);
+      }
+
+      this.skipUntil(() => this.peek() !== ' ');
 
       // Apply alignment to cells
       for (const [index, cell] of row.entries()) {
