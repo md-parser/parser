@@ -83,7 +83,20 @@ export class MarkdownParser {
   }
 
   parseBlock(): MarkdownNode {
-    const node = this.parseExpression('block');
+    // Try to parse a block expression from the start of the line
+    let node = this.parseExpression('block');
+
+    if (node) {
+      return node;
+    }
+
+    // No match, skip whitespace and try again
+    while (this.index < this.length && this.peek() === ' ') {
+      this.index++;
+      continue;
+    }
+
+    node = this.parseExpression('block');
 
     if (node) {
       return node;
@@ -102,7 +115,6 @@ export class MarkdownParser {
 
     while (this.index < this.length) {
       if (predicate && predicate()) {
-        // console.log('predicate kill', JSON.stringify(this.buffer()));
         return nodes;
       }
 
