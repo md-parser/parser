@@ -55,7 +55,7 @@ export type MarkdownListNode = {
   ordered: boolean;
   // if ordered is true, then start is the starting number
   start?: number;
-  items: (MarkdownListNode | MarkdownListItemNode)[];
+  children: (MarkdownListNode | MarkdownListItemNode)[];
 };
 
 export type MarkdownListItemNode = {

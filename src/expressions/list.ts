@@ -36,7 +36,7 @@ export class ListExpression extends MarkdownExpression<MarkdownListNode> {
     const node: MarkdownListNode = {
       type: 'list',
       ordered,
-      items: [],
+      children: [],
     };
 
     if (ordered) {
@@ -61,7 +61,7 @@ export class ListExpression extends MarkdownExpression<MarkdownListNode> {
       if (level === depth) {
         this.skip(bull.length);
 
-        node.items.push({
+        node.children.push({
           type: 'list-item',
           children: this.parseInline(
             () =>
@@ -76,7 +76,7 @@ export class ListExpression extends MarkdownExpression<MarkdownListNode> {
       }
 
       if (level > depth) {
-        node.items.push(this.parseList(level));
+        node.children.push(this.parseList(level));
         continue;
       }
 
