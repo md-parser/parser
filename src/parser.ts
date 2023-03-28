@@ -9,6 +9,8 @@ import { InlineCodeExpression } from './expressions/inlineCode';
 import { LineBreakExpression } from './expressions/lineBreak';
 import { LinkExpression } from './expressions/link';
 import { ListExpression } from './expressions/list';
+import { SubscriptExpression } from './expressions/subscript';
+import { SuperscriptExpression } from './expressions/superscript';
 import { TableExpression } from './expressions/table';
 import { MarkdownNode, MarkdownTextNode } from './nodes';
 import { Expression } from './types';
@@ -36,6 +38,8 @@ export class MarkdownParser {
       new InlineCodeExpression(this),
       new CodeExpression(this),
       new TableExpression(this),
+      new SuperscriptExpression(this),
+      new SubscriptExpression(this),
       ...expressions.map((expression) => new expression(this)),
     ];
   }
