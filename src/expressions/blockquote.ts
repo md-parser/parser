@@ -11,6 +11,10 @@ export class BlockquoteExpression extends MarkdownExpression<MarkdownBlockQuoteN
       return false;
     }
 
+    if (this.peekAt(-1) !== '\n' && this.peekAt(-1) !== '') {
+      return false;
+    }
+
     return this.peekAt(1) === ' ' || this.peekAt(1) === '>';
   }
 
