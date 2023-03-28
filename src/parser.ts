@@ -91,7 +91,7 @@ export class MarkdownParser {
     }
 
     // No match, skip whitespace and try again
-    while (this.index < this.length && this.peek() === ' ') {
+    while (this.index < this.length && (this.peek() === ' ' || this.peek() === '\n')) {
       this.index++;
       continue;
     }

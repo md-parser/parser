@@ -10,13 +10,13 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   public name = 'table';
 
   matches(): boolean {
-    if (this.peek() !== '|' && this.peekAt(-1) !== '\n' && this.peekAt(-1) !== '') {
+    if (this.peek() !== '|') {
       return false;
     }
 
     // Check if the next line is a table head
     // and the next line after that is a table align line
-    return /^\|.*?\|\n\|[|\s-:]+\|\n/.test(this.buffer());
+    return /^\|.*?\|\n\s*\|[|\s-:]+\|\n/.test(this.buffer());
   }
 
   toNode(): MarkdownTableNode {
@@ -33,6 +33,8 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   }
 
   parseAlignLine(line: string): Align[] {
+    this.skipUntil(() => this.peek() === '|');
+
     // Repace | at start and end of line with empty string
     const cells = line.replace(/(^\|\s*)|(\s*\|$)/g, '').split(SPLIT_PIPE);
 
@@ -58,6 +60,9 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   parseTableHead(): MarkdownTableRowNode {
     const rows: MarkdownTableCellNode[] = [];
 
+    // Skip whitespaces
+    this.skipUntil(() => this.peek() === '|');
+
     // Skip |
     this.skip(1);
     this.skipUntil(() => this.peek() !== '|' && this.peek() !== ' ');
@@ -74,8 +79,8 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
       this.skipUntil(() => this.peek() !== '|' && this.peek() !== ' ');
     }
 
-    // Skip EOL
-    this.skip(1);
+    // Skip to next row start
+    this.skipUntil(() => this.peek() === '|');
 
     // Parse alignment line
     const lineEnd = this.buffer().indexOf('\n');
@@ -99,6 +104,9 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   parseRows(align: Align[]): MarkdownTableRowNode[] {
     const rows: MarkdownTableRowNode[] = [];
 
+    // Skip whitespaces
+    this.skipUntil(() => this.peek() === '|');
+
     while (this.peek() === '|') {
       const row: MarkdownTableCellNode[] = [];
 
@@ -118,8 +126,7 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
         this.skipUntil(() => this.peek() !== '|' && this.peek() !== ' ');
       }
 
-      // Skip EOL
-      this.skip(1);
+      this.skipUntil(() => this.peek() === '|');
 
       // Apply alignment to cells
       for (const [index, cell] of row.entries()) {
