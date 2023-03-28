@@ -7,7 +7,7 @@ export class CodeExpression extends MarkdownExpression<MarkdownCodeNode> {
   public name = 'code';
 
   matches(): boolean {
-    return this.peekSet(0, 3) === '```' && this.buffer().indexOf('```', 3) !== -1;
+    return this.peekSet(0, 3) === '```' && this.buffer().includes('```', 3);
   }
 
   toNode(): MarkdownCodeNode {
