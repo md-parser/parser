@@ -1,4 +1,3 @@
-import { EOL } from '../constants';
 import { MarkdownExpression } from '../expression';
 import { MarkdownDividerNode } from '../nodes';
 
@@ -7,11 +6,11 @@ export class DividerExpression extends MarkdownExpression<MarkdownDividerNode> {
   public name = 'divider';
 
   matches(): boolean {
-    return this.peekSet(0, 3) === '---' && (this.peekAt(3) === EOL || this.peekAt(3) === '');
+    return /^\s*[*-_]{3}\s*$/.test(this.peekLine());
   }
 
   toNode(): MarkdownDividerNode {
-    this.skip(3);
+    this.skipUntil(() => this.peek() === '\n');
 
     return {
       type: 'divider',
