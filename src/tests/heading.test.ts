@@ -50,4 +50,21 @@ describe('parse.heading', () => {
       },
     ]);
   });
+
+  it('should parse heading with leading whitespaces', () => {
+    const ast = parseMarkdown('  # Title');
+
+    expect(ast).toEqual([
+      {
+        type: 'heading',
+        level: 1,
+        children: [
+          {
+            type: 'text',
+            value: 'Title',
+          },
+        ],
+      },
+    ]);
+  });
 });

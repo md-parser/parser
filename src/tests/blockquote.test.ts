@@ -23,7 +23,7 @@ describe('parse.blockquote', () => {
   });
 
   it('should parse blockquote', () => {
-    const ast = parseMarkdown('> Hello world\n>> Line 2\n> Line 3');
+    const ast = parseMarkdown('> Hello > world\n>> Line 2\n> Line 3');
 
     expect(ast).toEqual([
       {
@@ -34,7 +34,7 @@ describe('parse.blockquote', () => {
             children: [
               {
                 type: 'text',
-                value: 'Hello world',
+                value: 'Hello > world',
               },
             ],
           },
