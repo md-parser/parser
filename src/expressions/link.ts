@@ -30,7 +30,16 @@ export class LinkExpression extends MarkdownExpression<MarkdownLinkNode> {
     // skip ](
     this.skip(2);
 
-    const href = this.readUntil(() => this.peek() === ')');
+    const href = this.readUntil(() => this.peek() === '"' || this.peek() === ')').trimEnd();
+    let title: string | undefined;
+
+    if (this.peek() === '"') {
+      this.skip(1);
+
+      title = this.readUntil(() => this.peek() === '"');
+    }
+
+    this.skipUntil(() => this.peek() === ')');
 
     // skip )
     this.skip(1);
@@ -38,6 +47,7 @@ export class LinkExpression extends MarkdownExpression<MarkdownLinkNode> {
     return {
       type: 'link',
       href,
+      title,
       children,
     };
   }

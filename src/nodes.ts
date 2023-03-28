@@ -30,6 +30,7 @@ export type MarkdownStrikeTroughNode = {
 export type MarkdownLinkNode = {
   type: 'link';
   href: string;
+  title?: string;
   children: MarkdownNode[];
 };
 
