@@ -105,4 +105,36 @@ describe('parse.emphasis', () => {
       },
     ]);
   });
+
+  it('should parse bold with link', () => {
+    const ast = parseMarkdown('__[Link text](https://example.com "Link title"), more text__');
+
+    expect(ast).toEqual([
+      {
+        type: 'paragraph',
+        children: [
+          {
+            type: 'strong',
+            children: [
+              {
+                type: 'link',
+                href: 'https://example.com',
+                title: 'Link title',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Link text',
+                  },
+                ],
+              },
+              {
+                type: 'text',
+                value: ', more text',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
 });

@@ -11,11 +11,6 @@ export class LinkExpression extends MarkdownExpression<MarkdownLinkNode> {
       return false;
     }
 
-    // check if there is a space before the link
-    if (this.peekAt(-1) !== ' ' && this.peekAt(-1) !== '' && this.peekAt(-1) !== EOL) {
-      return false;
-    }
-
     return /^\[.*]\(.*\)/.test(this.buffer());
   }
 
