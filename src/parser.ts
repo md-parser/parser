@@ -90,16 +90,21 @@ export class MarkdownParser {
       return node;
     }
 
+    const index = this.index;
+
     // No match, skip whitespace and try again
     while (this.index < this.length && (this.peek() === ' ' || this.peek() === '\n')) {
       this.index++;
       continue;
     }
 
-    node = this.parseExpression('block');
+    // Index changed, check match
+    if (this.index !== index) {
+      node = this.parseExpression('block');
 
-    if (node) {
-      return node;
+      if (node) {
+        return node;
+      }
     }
 
     return {
