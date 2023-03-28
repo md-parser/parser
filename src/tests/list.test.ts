@@ -8,7 +8,7 @@ describe('parse.list', () => {
       {
         type: 'list',
         ordered: false,
-        children: [
+        items: [
           {
             type: 'list-item',
             children: [
@@ -39,7 +39,8 @@ describe('parse.list', () => {
       {
         type: 'list',
         ordered: true,
-        children: [
+        start: 1,
+        items: [
           {
             type: 'list-item',
             children: [
@@ -71,7 +72,7 @@ describe('parse.list', () => {
       {
         type: 'list',
         ordered: false,
-        children: [
+        items: [
           {
             type: 'list-item',
             children: [
@@ -84,7 +85,7 @@ describe('parse.list', () => {
           {
             type: 'list',
             ordered: false,
-            children: [
+            items: [
               {
                 type: 'list-item',
                 children: [
@@ -102,6 +103,27 @@ describe('parse.list', () => {
               {
                 type: 'text',
                 value: 'Item 3',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should parse start of ordered list', () => {
+    expect(parseMarkdown('10. text')).toEqual([
+      {
+        type: 'list',
+        ordered: true,
+        start: 10,
+        items: [
+          {
+            type: 'list-item',
+            children: [
+              {
+                type: 'text',
+                value: 'text',
               },
             ],
           },
