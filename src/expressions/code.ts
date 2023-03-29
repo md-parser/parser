@@ -14,18 +14,19 @@ export class CodeExpression extends MarkdownExpression<MarkdownCodeNode> {
     // skip ```
     this.skip(3);
 
-    const language = this.readUntil(() => this.peek() === EOL);
+    const language = this.readUntil(() => this.peek() === EOL) || undefined;
 
     // skip newline
     this.skip(1);
 
     const value = this.readUntil(() => this.peekSet(0, 3) === '```');
 
+    // skip ```
     this.skip(3);
 
     return {
       type: 'code',
-      language: language,
+      language,
       value: value,
     };
   }
