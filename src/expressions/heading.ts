@@ -6,7 +6,11 @@ export class HeadingExpression extends MarkdownExpression<MarkdownHeadingNode> {
   public name = 'heading';
 
   matches(): boolean {
-    const match = this.buffer().match(/^\s*(#{1,6})\s/);
+    if (this.peek() !== '#') {
+      return false;
+    }
+
+    const match = this.buffer().match(/^(#{1,6})\s/);
 
     if (!match) {
       return false;
@@ -28,7 +32,7 @@ export class HeadingExpression extends MarkdownExpression<MarkdownHeadingNode> {
 
     return {
       type: 'heading',
-      level: level,
+      level: level as 1 | 2 | 3 | 4 | 5 | 6,
       children: this.parseInline(() => this.peek() === '\n'),
     };
   }

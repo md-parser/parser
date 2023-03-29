@@ -93,7 +93,7 @@ describe('parse.emphasis', () => {
         type: 'paragraph',
         children: [
           {
-            type: 'strike-through',
+            type: 'strikeThrough',
             children: [
               {
                 type: 'text',

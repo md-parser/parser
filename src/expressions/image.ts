@@ -22,7 +22,16 @@ export class ImageExpression extends MarkdownExpression<MarkdownImageNode> {
     // skip ](
     this.skip(2);
 
-    const src = this.readUntil(() => this.peek() === ')');
+    const src = this.readUntil(() => this.peek() === '"' || this.peek() === ')').trimEnd();
+    let title: string | undefined;
+
+    if (this.peek() === '"') {
+      this.skip(1);
+
+      title = this.readUntil(() => this.peek() === '"');
+    }
+
+    this.skipUntil(() => this.peek() === ')');
 
     // skip )
     this.skip(1);
@@ -31,6 +40,7 @@ export class ImageExpression extends MarkdownExpression<MarkdownImageNode> {
       type: 'image',
       alt,
       src,
+      title,
     };
   }
 }

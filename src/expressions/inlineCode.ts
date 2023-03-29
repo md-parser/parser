@@ -3,16 +3,14 @@ import { MarkdownInlineCodeNode } from '../nodes';
 
 export class InlineCodeExpression extends MarkdownExpression<MarkdownInlineCodeNode> {
   public type = 'inline' as const;
-  public name = 'inline-code';
+  public name = 'inlineCode';
 
   matches(): boolean {
     if (this.peek() !== '`') {
       return false;
     }
 
-    return (
-      this.peekAt(1) !== '`' && this.peekAt(-1) !== '`' && this.peekLine().indexOf('`', 1) !== -1
-    );
+    return this.peekAt(1) !== '`' && this.peekAt(-1) !== '`' && this.peekLine().includes('`', 1);
   }
 
   toNode(): MarkdownInlineCodeNode {
@@ -25,7 +23,7 @@ export class InlineCodeExpression extends MarkdownExpression<MarkdownInlineCodeN
     this.skip(1);
 
     return {
-      type: 'inline-code',
+      type: 'inlineCode',
       value,
     };
   }

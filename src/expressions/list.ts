@@ -62,7 +62,7 @@ export class ListExpression extends MarkdownExpression<MarkdownListNode> {
         this.skip(bull.length);
 
         node.children.push({
-          type: 'list-item',
+          type: 'listItem',
           children: this.parseInline(
             () =>
               (this.peek() === '\n' && this.peekAt(1) === '\n') ||

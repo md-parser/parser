@@ -8,9 +8,9 @@ describe('parse.list', () => {
       {
         type: 'list',
         ordered: false,
-        items: [
+        children: [
           {
-            type: 'list-item',
+            type: 'listItem',
             children: [
               {
                 type: 'text',
@@ -19,7 +19,7 @@ describe('parse.list', () => {
             ],
           },
           {
-            type: 'list-item',
+            type: 'listItem',
             children: [
               {
                 type: 'text',
@@ -40,9 +40,9 @@ describe('parse.list', () => {
         type: 'list',
         ordered: true,
         start: 1,
-        items: [
+        children: [
           {
-            type: 'list-item',
+            type: 'listItem',
             children: [
               {
                 type: 'text',
@@ -51,7 +51,7 @@ describe('parse.list', () => {
             ],
           },
           {
-            type: 'list-item',
+            type: 'listItem',
             children: [
               {
                 type: 'text',
@@ -72,9 +72,9 @@ describe('parse.list', () => {
       {
         type: 'list',
         ordered: false,
-        items: [
+        children: [
           {
-            type: 'list-item',
+            type: 'listItem',
             children: [
               {
                 type: 'text',
@@ -85,9 +85,9 @@ describe('parse.list', () => {
           {
             type: 'list',
             ordered: false,
-            items: [
+            children: [
               {
-                type: 'list-item',
+                type: 'listItem',
                 children: [
                   {
                     type: 'text',
@@ -98,7 +98,7 @@ describe('parse.list', () => {
             ],
           },
           {
-            type: 'list-item',
+            type: 'listItem',
             children: [
               {
                 type: 'text',
@@ -117,9 +117,9 @@ describe('parse.list', () => {
         type: 'list',
         ordered: true,
         start: 10,
-        items: [
+        children: [
           {
-            type: 'list-item',
+            type: 'listItem',
             children: [
               {
                 type: 'text',

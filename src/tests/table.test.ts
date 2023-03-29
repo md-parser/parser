@@ -1,23 +1,21 @@
-const markdownTable = `| Heading 1  | Heading 2 |
-| ------------- |-------------:|
-| left foo      | right foo     |
-| left bar      | right bar     |
-| left baz      | right baz     |`;
-
 import { parseMarkdown } from '../parseMarkdown';
 
 describe('parse.divider', () => {
   it('should parse divider', () => {
-    const ast = parseMarkdown(markdownTable);
+    const ast = parseMarkdown(`| Heading 1  | Heading 2 |
+| ------------- |-------------:|
+| left foo      | right foo     |
+| left bar      | right bar     |
+| left baz      | right baz     |`);
 
     expect(ast).toEqual([
       {
         type: 'table',
         header: {
-          type: 'table-row',
+          type: 'tableRow',
           children: [
             {
-              type: 'table-cell',
+              type: 'tableHeader',
               align: 'left',
               children: [
                 {
@@ -27,7 +25,7 @@ describe('parse.divider', () => {
               ],
             },
             {
-              type: 'table-cell',
+              type: 'tableHeader',
               align: 'right',
               children: [
                 {
@@ -40,10 +38,10 @@ describe('parse.divider', () => {
         },
         rows: [
           {
-            type: 'table-row',
+            type: 'tableRow',
             children: [
               {
-                type: 'table-cell',
+                type: 'tableData',
                 align: 'left',
                 children: [
                   {
@@ -53,7 +51,7 @@ describe('parse.divider', () => {
                 ],
               },
               {
-                type: 'table-cell',
+                type: 'tableData',
                 align: 'right',
                 children: [
                   {
@@ -65,10 +63,10 @@ describe('parse.divider', () => {
             ],
           },
           {
-            type: 'table-row',
+            type: 'tableRow',
             children: [
               {
-                type: 'table-cell',
+                type: 'tableData',
                 align: 'left',
                 children: [
                   {
@@ -78,7 +76,7 @@ describe('parse.divider', () => {
                 ],
               },
               {
-                type: 'table-cell',
+                type: 'tableData',
                 align: 'right',
                 children: [
                   {
@@ -90,10 +88,10 @@ describe('parse.divider', () => {
             ],
           },
           {
-            type: 'table-row',
+            type: 'tableRow',
             children: [
               {
-                type: 'table-cell',
+                type: 'tableData',
                 align: 'left',
                 children: [
                   {
@@ -103,7 +101,7 @@ describe('parse.divider', () => {
                 ],
               },
               {
-                type: 'table-cell',
+                type: 'tableData',
                 align: 'right',
                 children: [
                   {

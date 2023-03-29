@@ -23,7 +23,7 @@ export type MarkdownItalicNode = {
 };
 
 export type MarkdownStrikeTroughNode = {
-  type: 'strike-through';
+  type: 'strikeThrough';
   children: MarkdownNode[];
 };
 
@@ -38,16 +38,17 @@ export type MarkdownImageNode = {
   type: 'image';
   alt: string;
   src: string;
+  title?: string;
 };
 
 export type MarkdownHeadingNode = {
   type: 'heading';
-  level: number;
+  level: 1 | 2 | 3 | 4 | 5 | 6;
   children: MarkdownNode[];
 };
 
 export type MarkdownLineBreakNode = {
-  type: 'line-break';
+  type: 'lineBreak';
 };
 
 export type MarkdownListNode = {
@@ -59,18 +60,18 @@ export type MarkdownListNode = {
 };
 
 export type MarkdownListItemNode = {
-  type: 'list-item';
+  type: 'listItem';
   children: MarkdownNode[];
 };
 
 export type MarkdownCodeNode = {
   type: 'code';
   value: string;
-  language: string;
+  language?: string;
 };
 
 export type MarkdownInlineCodeNode = {
-  type: 'inline-code';
+  type: 'inlineCode';
   value: string;
 };
 
@@ -90,12 +91,18 @@ export type MarkdownTableNode = {
 };
 
 export type MarkdownTableRowNode = {
-  type: 'table-row';
-  children: MarkdownTableCellNode[];
+  type: 'tableRow';
+  children: (MarkdownTableDataNode | MarkdownTableHeaderNode)[];
 };
 
-export type MarkdownTableCellNode = {
-  type: 'table-cell';
+export type MarkdownTableHeaderNode = {
+  type: 'tableHeader';
+  align: 'left' | 'center' | 'right';
+  children: MarkdownNode[];
+};
+
+export type MarkdownTableDataNode = {
+  type: 'tableData';
   align: 'left' | 'center' | 'right';
   children: MarkdownNode[];
 };
@@ -111,20 +118,24 @@ export type MarkdownSuperscriptNode = {
 };
 
 export type MarkdownNode =
-  | MarkdownTextNode
-  | MarkdownParagraphNode
-  | MarkdownStrongNode
-  | MarkdownLinkNode
-  | MarkdownImageNode
-  | MarkdownHeadingNode
-  | MarkdownItalicNode
-  | MarkdownStrikeTroughNode
-  | MarkdownLineBreakNode
-  | MarkdownListNode
-  | MarkdownCodeNode
-  | MarkdownInlineCodeNode
-  | MarkdownDividerNode
   | MarkdownBlockQuoteNode
-  | MarkdownTableNode
+  | MarkdownCodeNode
+  | MarkdownDividerNode
+  | MarkdownHeadingNode
+  | MarkdownImageNode
+  | MarkdownInlineCodeNode
+  | MarkdownItalicNode
+  | MarkdownLineBreakNode
+  | MarkdownLinkNode
+  | MarkdownListItemNode
+  | MarkdownListNode
+  | MarkdownParagraphNode
+  | MarkdownStrikeTroughNode
+  | MarkdownStrongNode
   | MarkdownSubscriptNode
-  | MarkdownSuperscriptNode;
+  | MarkdownSuperscriptNode
+  | MarkdownTableDataNode
+  | MarkdownTableHeaderNode
+  | MarkdownTableNode
+  | MarkdownTableRowNode
+  | MarkdownTextNode;

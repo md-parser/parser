@@ -29,7 +29,7 @@ describe('parse.paragraph', () => {
             value: 'Hello',
           },
           {
-            type: 'line-break',
+            type: 'lineBreak',
           },
           {
             type: 'text',

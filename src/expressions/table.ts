@@ -1,5 +1,10 @@
 import { MarkdownExpression } from '../expression';
-import { MarkdownTableCellNode, MarkdownTableNode, MarkdownTableRowNode } from '../nodes';
+import {
+  MarkdownTableDataNode,
+  MarkdownTableHeaderNode,
+  MarkdownTableNode,
+  MarkdownTableRowNode,
+} from '../nodes';
 
 type Align = 'left' | 'center' | 'right';
 
@@ -58,7 +63,7 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   }
 
   parseTableHead(): MarkdownTableRowNode {
-    const rows: MarkdownTableCellNode[] = [];
+    const rows: MarkdownTableHeaderNode[] = [];
 
     // Skip whitespaces
     this.skipUntil(() => this.peek() === '|');
@@ -68,8 +73,8 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
     this.skipUntil(() => this.peek() !== '|' && this.peek() !== ' ');
 
     while (this.peek() !== '\n' && this.peek() !== '') {
-      const rowNode: MarkdownTableCellNode = {
-        type: 'table-cell',
+      const rowNode: MarkdownTableHeaderNode = {
+        type: 'tableHeader',
         align: 'left',
         children: this.parseInline(() => this.peek() === '|' && this.peekAt(-1) !== '\\'),
       };
@@ -96,7 +101,7 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
     this.skip(lineEnd + 1);
 
     return {
-      type: 'table-row',
+      type: 'tableRow',
       children: rows,
     };
   }
@@ -108,15 +113,15 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
     this.skipUntil(() => this.peek() === '|');
 
     while (this.peek() === '|') {
-      const row: MarkdownTableCellNode[] = [];
+      const row: MarkdownTableDataNode[] = [];
 
       // Skip |
       this.skip(1);
       this.skipUntil(() => this.peek() !== '|' && this.peek() !== ' ');
 
       while (this.peek() !== '\n' && this.peek() !== '') {
-        const rowNode: MarkdownTableCellNode = {
-          type: 'table-cell',
+        const rowNode: MarkdownTableDataNode = {
+          type: 'tableData',
           align: 'left',
           children: this.parseInline(() => this.peek() === '|' && this.peekAt(-1) !== '\\'),
         };
@@ -139,7 +144,7 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
       }
 
       rows.push({
-        type: 'table-row',
+        type: 'tableRow',
         children: row,
       });
     }

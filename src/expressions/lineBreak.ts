@@ -4,7 +4,7 @@ import { MarkdownLineBreakNode } from '../nodes';
 
 export class LineBreakExpression extends MarkdownExpression<MarkdownLineBreakNode> {
   public type = 'inline' as const;
-  public name = 'line-break';
+  public name = 'lineBreak';
 
   matches(): boolean {
     return this.peek() === EOL;
@@ -14,7 +14,7 @@ export class LineBreakExpression extends MarkdownExpression<MarkdownLineBreakNod
     this.skip(1);
 
     return {
-      type: 'line-break',
+      type: 'lineBreak',
     };
   }
 }

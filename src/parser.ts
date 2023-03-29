@@ -93,7 +93,10 @@ export class MarkdownParser {
     const index = this.index;
 
     // No match, skip whitespace and try again
-    while (this.index < this.length && (this.peek() === ' ' || this.peek() === '\n')) {
+    while (
+      this.index < this.length &&
+      (this.peek() === ' ' || this.peek() === '\n' || this.peek() === '\t')
+    ) {
       this.index++;
       continue;
     }

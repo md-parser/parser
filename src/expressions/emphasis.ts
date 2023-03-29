@@ -50,7 +50,7 @@ export class EmphasisExpression extends MarkdownExpression<EmphasisNode> {
       this.next();
 
       return {
-        type: symbol === '~' ? 'strike-through' : 'strong',
+        type: symbol === '~' ? 'strikeThrough' : 'strong',
         children,
       };
     }
