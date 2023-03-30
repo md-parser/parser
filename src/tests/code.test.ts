@@ -23,4 +23,26 @@ describe('parse.code', () => {
       },
     ]);
   });
+
+  it('should parse code blocks that start with 4 spaces', () => {
+    const ast = parseMarkdown('    Hello world\n');
+
+    expect(ast).toEqual([
+      {
+        type: 'code',
+        value: 'Hello world\n',
+      },
+    ]);
+  });
+
+  it('should parse multiline code blocks that start with 4 spaces', () => {
+    const ast = parseMarkdown('    Hello world\n    Hello world\n');
+
+    expect(ast).toEqual([
+      {
+        type: 'code',
+        value: 'Hello world\nHello world\n',
+      },
+    ]);
+  });
 });
