@@ -12,7 +12,7 @@ export class DividerExpression extends MarkdownExpression<MarkdownDividerNode> {
       return false;
     }
 
-    return /^\s*[*_-]{3}\s*$/.test(this.peekLine());
+    return /^\s*[*_-]{3,}\s*$/.test(this.peekLine());
   }
 
   toNode(): MarkdownDividerNode {
