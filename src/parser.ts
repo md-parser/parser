@@ -1,6 +1,6 @@
 import { MarkdownExpression } from './expression';
 import { BlockquoteExpression } from './expressions/blockquote';
-import { CodeExpression } from './expressions/codeblock';
+import { CodeExpression } from './expressions/code';
 import { DividerExpression } from './expressions/divider';
 import { EmphasisExpression } from './expressions/emphasis';
 import { HeadingExpression } from './expressions/heading';
