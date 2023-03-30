@@ -6,7 +6,13 @@ export class DividerExpression extends MarkdownExpression<MarkdownDividerNode> {
   public name = 'divider';
 
   matches(): boolean {
-    return /^\s*[*-_]{3}\s*$/.test(this.peekLine());
+    const char = this.peek();
+
+    if (char !== '*' && char !== '_' && char !== '-') {
+      return false;
+    }
+
+    return /^\s*[*_-]{3}\s*$/.test(this.peekLine());
   }
 
   toNode(): MarkdownDividerNode {
