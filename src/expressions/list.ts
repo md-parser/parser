@@ -1,7 +1,8 @@
 import { MarkdownExpression } from '../expression';
 import { MarkdownListNode } from '../nodes';
 
-const LIST_ITEM_REGEX = /^[\t |]*(?:[*+-]|\d+\.) /;
+const LIST_ITEM_REGEX = /^[\s|]*(?:[*+-]|\d+\.)\s/;
+
 export class ListExpression extends MarkdownExpression<MarkdownListNode> {
   public type = 'inline-block' as const;
   public name = 'list';
@@ -11,7 +12,7 @@ export class ListExpression extends MarkdownExpression<MarkdownListNode> {
   }
 
   isOrderedList(value: string): boolean {
-    return /^[\t |]*\d+. /.test(value);
+    return /^[\t |]*\d+.\s/.test(value);
   }
 
   getBull(value: string): string {
@@ -66,7 +67,7 @@ export class ListExpression extends MarkdownExpression<MarkdownListNode> {
           children: this.parseInline(
             () =>
               (this.peek() === '\n' && this.peekAt(1) === '\n') ||
-              this.isList(this.buffer().slice(1)),
+              (this.peek() === '\n' && this.isList(this.buffer().slice(1))),
           ),
         });
 

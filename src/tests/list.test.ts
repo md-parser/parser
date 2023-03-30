@@ -131,4 +131,55 @@ describe('parse.list', () => {
       },
     ]);
   });
+
+  it('should parse list seperated by tab after *', () => {
+    const ast = parseMarkdown('*\tItem 1');
+
+    expect(ast).toEqual([
+      {
+        type: 'list',
+        ordered: false,
+        children: [
+          {
+            type: 'listItem',
+            children: [
+              {
+                type: 'text',
+                value: 'Item 1',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should parse list items correctly that contains a dash', () => {
+    expect(parseMarkdown('- Red: 0% - 20%\n-	Amber: 21% - 35%')).toEqual([
+      {
+        type: 'list',
+        ordered: false,
+        children: [
+          {
+            type: 'listItem',
+            children: [
+              {
+                type: 'text',
+                value: 'Red: 0% - 20%',
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            children: [
+              {
+                type: 'text',
+                value: 'Amber: 21% - 35%',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
 });
