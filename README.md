@@ -28,4 +28,4 @@ const ast = parseMarkdown('# Hello World', {
 
 - [ ] Task list `- [ ] Task` `- [x] Finished Task`
 - [ ] Character encoding `& > <` -> `&amp; &lt; &gt`;
-- [ ] Escaped chacaters \!\"\#\$\%\&\'\(\)\*\+\,\-\.\/\:\;\<\=\>\?\@\[\\\]\^\_\`\{\|\}\~
+- [ ] Well formed HTML entities can be written inline directly. If you write &copy;, it will appear in the HTML output as ©.
