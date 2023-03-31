@@ -11,11 +11,6 @@ export class LinkExpression extends MarkdownExpression<MarkdownLinkNode> {
       return false;
     }
 
-    // Escaped
-    if (this.peekAt(-1) === '\\') {
-      return false;
-    }
-
     return /^\[.*]\(.*\)/.test(this.buffer());
   }
 
