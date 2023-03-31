@@ -106,7 +106,38 @@ describe('parse.emphasis', () => {
     ]);
   });
 
-  it('should parse bold with link', () => {
+  it('should parse italic with inline content', () => {
+    const ast = parseMarkdown('~~***test***~~');
+
+    expect(ast).toEqual([
+      {
+        type: 'paragraph',
+        children: [
+          {
+            type: 'strikeThrough',
+            children: [
+              {
+                type: 'strong',
+                children: [
+                  {
+                    type: 'italic',
+                    children: [
+                      {
+                        type: 'text',
+                        value: 'test',
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should parse bold with inline content', () => {
     const ast = parseMarkdown('__[Link text](https://example.com "Link title"), more text__');
 
     expect(ast).toEqual([
@@ -130,6 +161,31 @@ describe('parse.emphasis', () => {
               {
                 type: 'text',
                 value: ', more text',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should parse **TEXT*', () => {
+    const ast = parseMarkdown('**TEXT*');
+
+    expect(ast).toEqual([
+      {
+        type: 'paragraph',
+        children: [
+          {
+            type: 'text',
+            value: '*',
+          },
+          {
+            type: 'italic',
+            children: [
+              {
+                type: 'text',
+                value: 'TEXT',
               },
             ],
           },

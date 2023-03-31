@@ -7,45 +7,69 @@ export class EmphasisExpression extends MarkdownExpression<EmphasisNode> {
   public type = 'inline' as const;
   public name = 'emphasis';
 
+  private nested = false;
+  private prevNested = false;
+
+  restoreNested() {
+    this.nested = this.prevNested;
+  }
+
+  setNested() {
+    this.prevNested = this.nested;
+    this.nested = true;
+
+    return this.prevNested;
+  }
+
   matches(): boolean {
     const char = this.peek();
-    const value = this.buffer();
 
+    // Emphasis matches '*' or '_' or '~'
     if (char !== '*' && char !== '_' && char !== '~') {
       return false;
     }
 
+    // Striketrough matches '~~'
     if (char === '~' && this.peekAt(1) !== '~') {
       return false;
     }
 
-    if (this.peekAt(-1) === char && this.peekAt(-2) !== char) {
-      return false;
+    const line = this.peekLine();
+    const symbol = this.peekAt(1) === char && this.peekAt(2) !== char ? char + char : char;
+
+    if (symbol.length === 2) {
+      return line.includes(symbol, 2);
     }
 
-    const matchChars = this.peekAt(1) === char ? char + char : char;
-    const endOfMatch = value.indexOf(matchChars, matchChars.length);
-    const endOfLine = value.lastIndexOf('\n', endOfMatch);
+    let nextSymbolIndex = line.indexOf(symbol, symbol.length + 1);
 
-    if (endOfMatch === -1) {
-      return false;
+    while (nextSymbolIndex !== -1) {
+      if (this.peekAt(nextSymbolIndex - 1) !== char) {
+        return true;
+      }
+
+      nextSymbolIndex = line.indexOf(symbol, nextSymbolIndex + 1);
     }
 
-    return endOfLine === -1 ? true : endOfMatch < endOfLine;
+    return false;
   }
 
   toNode(): EmphasisNode {
-    const symbol = this.peek();
-    const doubleSymbol = this.peekAt(1) === symbol;
+    const symbol = this.peek(); // '*' or '_' or '~'
 
-    if (doubleSymbol) {
+    if (this.peekAt(1) === symbol) {
+      // skip symbol
       this.next();
       this.next();
 
+      const prevNested = this.nested;
+      this.nested = true;
       const children = this.parseInline(() => {
         return this.peekSet(0, 2) === symbol + symbol;
       });
+      this.nested = prevNested;
 
+      // skip symbol
       this.next();
       this.next();
 
@@ -55,11 +79,20 @@ export class EmphasisExpression extends MarkdownExpression<EmphasisNode> {
       };
     }
 
+    // skip symbol
     this.next();
 
+    const nested = this.setNested();
+
     const children = this.parseInline(() => {
+      if (!nested && this.peek() === symbol) {
+        return this.peekAt(1) !== symbol;
+      }
+
       return this.peek() === symbol;
     });
+
+    this.restoreNested();
 
     this.next();
 
