@@ -15,6 +15,7 @@ import { TableExpression } from './expressions/table';
 import { MarkdownNode, MarkdownTextNode } from './nodes';
 import { Expression } from './types';
 
+const ESCAPE_CHARS = '!"#$%&\'()\\*+,-./:;<=>?@[]^_`{|}~';
 export class MarkdownParser {
   private expressions: MarkdownExpression<MarkdownNode>[];
   private readonly markdown: string;
@@ -101,7 +102,7 @@ export class MarkdownParser {
       continue;
     }
 
-    // Index changed, check match
+    // Try again
     if (this.index !== index) {
       node = this.parseExpression('block');
 
@@ -126,7 +127,7 @@ export class MarkdownParser {
         return nodes;
       }
 
-      // Beginning of new block
+      // Check for block expressions after a line break
       if (this.peek() === '\n') {
         this.next();
 
@@ -172,8 +173,18 @@ export class MarkdownParser {
         break;
       }
 
-      value += char;
-      this.next();
+      if (char === '\\') {
+        // skip escape character
+        this.next();
+
+        // if the next character is not an escape character, add the escape character "back" to the text
+        if (!ESCAPE_CHARS.includes(this.peek()) && !this.getMatchingExpression('inline')) {
+          value += '\\';
+        }
+      }
+
+      // Add the character to the text
+      value += this.next();
     }
 
     if (value.length === 0) {
