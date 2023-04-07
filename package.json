@@ -1,6 +1,6 @@
 {
   "name": "@saartje87/md-ast",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Markdown parser",
   "main": "dist/index.esm.js",
   "repository": "https://github.com/Saartje87/markdown-parser",
