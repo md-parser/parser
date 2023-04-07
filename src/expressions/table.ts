@@ -8,7 +8,7 @@ import {
 
 type Align = 'left' | 'center' | 'right';
 
-const SPLIT_PIPE = /(?<!\\)\|/;
+const SPLIT_PIPE = /(?:^|[^\\])\|/;
 
 export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   public type = 'block' as const;
@@ -40,7 +40,7 @@ export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   parseAlignLine(line: string): Align[] {
     this.skipUntil(() => this.peek() === '|');
 
-    // Repace | at start and end of line with empty string
+    // Replace | at start and end of line with empty string
     const cells = line.replace(/(^\|\s*)|(\s*\|$)/g, '').split(SPLIT_PIPE);
 
     return cells.map((cell) => {
