@@ -1,16 +1,18 @@
 import { MarkdownExpression } from '../expression';
 import { MarkdownImageNode } from '../nodes';
 
+const IMAGE_REGEX = /^!\[.*]\(.*\)/;
+
 export class ImageExpression extends MarkdownExpression<MarkdownImageNode> {
   public type = 'inline' as const;
-  public name = 'image';
+  public name = 'image' as const;
 
   matches(): boolean {
     if (this.peek() !== '!') {
       return false;
     }
 
-    return /^!\[.*]\(.*\)/.test(this.buffer());
+    return IMAGE_REGEX.test(this.buffer());
   }
 
   toNode(): MarkdownImageNode {

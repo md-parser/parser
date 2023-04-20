@@ -8,40 +8,38 @@ import {
 
 type Align = 'left' | 'center' | 'right';
 
-const SPLIT_PIPE = /(?:^|[^\\])\|/;
+const SPLIT_PIPE_REGEX = /(?:^|[^\\])\|/;
+// Check if the next line is a table head and the next line after that is a table align line
+const TABLE_MATCH_REGEX = /^\|.*?\|\n\s*\|[|\s-:]+\|\n/;
 
 export class TableExpression extends MarkdownExpression<MarkdownTableNode> {
   public type = 'block' as const;
-  public name = 'table';
+  public name = 'table' as const;
 
   matches(): boolean {
     if (this.peek() !== '|') {
       return false;
     }
 
-    // Check if the next line is a table head
-    // and the next line after that is a table align line
-    return /^\|.*?\|\n\s*\|[|\s-:]+\|\n/.test(this.buffer());
+    return TABLE_MATCH_REGEX.test(this.buffer());
   }
 
   toNode(): MarkdownTableNode {
     const header = this.parseTableHead();
     const align = header.children.map((cell) => cell.align);
 
-    const node: MarkdownTableNode = {
+    return {
       type: 'table',
       header,
       rows: this.parseRows(align),
     };
-
-    return node;
   }
 
   parseAlignLine(line: string): Align[] {
     this.skipUntil(() => this.peek() === '|');
 
     // Replace | at start and end of line with empty string
-    const cells = line.replace(/(^\|\s*)|(\s*\|$)/g, '').split(SPLIT_PIPE);
+    const cells = line.replace(/(^\|\s*)|(\s*\|$)/g, '').split(SPLIT_PIPE_REGEX);
 
     return cells.map((cell) => {
       const trimmed = cell.trim();

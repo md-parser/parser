@@ -1,12 +1,14 @@
 import { MarkdownExpression } from '../expression';
 import { MarkdownSubscriptNode } from '../nodes';
 
+const SUBSCRIPT_REGEX = /^~([^~])+~/;
+
 export class SubscriptExpression extends MarkdownExpression<MarkdownSubscriptNode> {
   public type = 'inline' as const;
-  public name = 'subscript';
+  public name = 'subscript' as const;
 
   matches(): boolean {
-    return this.peek() === '~' && /^~([^~])+~/.test(this.peekLine());
+    return this.peek() === '~' && SUBSCRIPT_REGEX.test(this.peekLine());
   }
 
   toNode(): MarkdownSubscriptNode {
