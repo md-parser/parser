@@ -34,7 +34,7 @@ export class EmphasisExpression extends MarkdownExpression<EmphasisNode> {
       return false;
     }
 
-    const line = this.peekLine();
+    const line = this.buffer();
     const symbol = this.peekAt(1) === char && this.peekAt(2) !== char ? char + char : char;
 
     if (symbol.length === 2) {
