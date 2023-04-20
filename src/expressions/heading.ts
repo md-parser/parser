@@ -10,17 +10,7 @@ export class HeadingExpression extends MarkdownExpression<MarkdownHeadingNode> {
       return false;
     }
 
-    const match = this.buffer().match(/^(#{1,6})\s/);
-
-    if (!match) {
-      return false;
-    }
-
-    if (match[1].length > 6) {
-      return false;
-    }
-
-    return true;
+    return /^(#{1,6}) /.test(this.buffer());
   }
 
   toNode(): MarkdownHeadingNode {
