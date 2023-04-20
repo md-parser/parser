@@ -16,33 +16,17 @@ import { MarkdownNode, MarkdownTextNode } from './nodes';
 import { Expression } from './types';
 
 const ESCAPE_CHARS = '!"#$%&\'()\\*+,-./:;<=>?@[]^_`{|}~';
-export class MarkdownParser {
-  private expressions: MarkdownExpression<MarkdownNode>[];
-  private readonly markdown: string;
-  private length: number;
-  private index = 0;
+
+export class SimpleMarkdownParser {
+  protected length: number;
+  protected index = 0;
+  private readonly expressions: MarkdownExpression<MarkdownNode>[];
 
   // TODO Move markdown parameter to parse method?
-  constructor(markdown: string, expressions: Expression[] = []) {
+  constructor(protected markdown: string, expressions: Expression[] = []) {
     this.markdown = markdown;
     this.length = markdown.length;
-
-    this.expressions = [
-      new ListExpression(this),
-      new HeadingExpression(this),
-      new EmphasisExpression(this),
-      new LineBreakExpression(this),
-      new BlockquoteExpression(this),
-      new DividerExpression(this),
-      new LinkExpression(this),
-      new ImageExpression(this),
-      new InlineCodeExpression(this),
-      new CodeExpression(this),
-      new TableExpression(this),
-      new SuperscriptExpression(this),
-      new SubscriptExpression(this),
-      ...expressions.map((expression) => new expression(this)),
-    ];
+    this.expressions = expressions.map((expression) => new expression(this));
   }
 
   getMatchingExpression(type: 'block' | 'inline'): MarkdownExpression<MarkdownNode> | null {
@@ -250,5 +234,25 @@ export class MarkdownParser {
     while (this.index < this.length && !predicate()) {
       this.index++;
     }
+  }
+}
+export class MarkdownParser extends SimpleMarkdownParser {
+  constructor(markdown: string, expressions: Expression[] = []) {
+    super(markdown, [
+      ListExpression,
+      HeadingExpression,
+      EmphasisExpression,
+      LineBreakExpression,
+      BlockquoteExpression,
+      DividerExpression,
+      LinkExpression,
+      ImageExpression,
+      InlineCodeExpression,
+      CodeExpression,
+      TableExpression,
+      SuperscriptExpression,
+      SubscriptExpression,
+      ...expressions,
+    ]);
   }
 }
