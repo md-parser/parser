@@ -9,13 +9,18 @@ import { InlineCodeExpression } from './expressions/inlineCode';
 import { LineBreakExpression } from './expressions/lineBreak';
 import { LinkExpression } from './expressions/link';
 import { ListExpression } from './expressions/list';
-import { SubscriptExpression } from './expressions/subscript';
-import { SuperscriptExpression } from './expressions/superscript';
 import { TableExpression } from './expressions/table';
 import { MarkdownNode, MarkdownTextNode } from './nodes';
 import { Expression } from './types';
 
 const ESCAPE_CHARS = '!"#$%&\'()\\*+,-./:;<=>?@[]^_`{|}~';
+
+export type ParserConfig = {
+  presets?: Expression[] | Expression[][];
+};
+
+// To add custom node types, you can extend the MarkdownNode type:
+// export class MarkdownParser<T extends MarkdownNode = MarkdownNode> {}
 export class MarkdownParser {
   private expressions: MarkdownExpression<MarkdownNode>[];
   private readonly markdown: string;
@@ -39,8 +44,6 @@ export class MarkdownParser {
       new InlineCodeExpression(this),
       new CodeExpression(this),
       new TableExpression(this),
-      new SuperscriptExpression(this),
-      new SubscriptExpression(this),
       ...expressions.map((expression) => new expression(this)),
     ];
   }
@@ -201,6 +204,8 @@ export class MarkdownParser {
     return this.markdown.slice(this.index);
   }
 
+  // read?
+  // readUntil?
   next(): string {
     return this.markdown.charAt(this.index++);
   }
