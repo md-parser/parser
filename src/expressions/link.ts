@@ -2,16 +2,18 @@ import { EOL } from '../constants';
 import { MarkdownExpression } from '../expression';
 import { MarkdownLinkNode } from '../nodes';
 
+const LINK_REGEX = /^\[.*]\(.*\)/;
+
 export class LinkExpression extends MarkdownExpression<MarkdownLinkNode> {
   public type = 'inline' as const;
-  public name = 'link';
+  public name = 'link' as const;
 
   matches(): boolean {
     if (this.peek() !== '[') {
       return false;
     }
 
-    return /^\[.*]\(.*\)/.test(this.buffer());
+    return LINK_REGEX.test(this.buffer());
   }
 
   toNode(): MarkdownLinkNode {

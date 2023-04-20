@@ -1,12 +1,14 @@
 import { MarkdownExpression } from '../expression';
 import { MarkdownSuperscriptNode } from '../nodes';
 
+const SUPERSCRIPT_REGEX = /^\^([^^])+\^/;
+
 export class SuperscriptExpression extends MarkdownExpression<MarkdownSuperscriptNode> {
   public type = 'inline' as const;
   public name = 'superscript';
 
   matches(): boolean {
-    return this.peek() === '^' && /^\^([^^])+\^/.test(this.peekLine());
+    return this.peek() === '^' && SUPERSCRIPT_REGEX.test(this.peekLine());
   }
 
   toNode(): MarkdownSuperscriptNode {
