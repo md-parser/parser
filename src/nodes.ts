@@ -17,8 +17,16 @@ export type MarkdownStrongNode = {
   children: MarkdownNode[];
 };
 
+/**
+ * @deprecated
+ */
 export type MarkdownItalicNode = {
   type: 'italic';
+  children: MarkdownNode[];
+};
+
+export type MarkdownEmphasisNode = {
+  type: 'emphasis';
   children: MarkdownNode[];
 };
 
@@ -125,6 +133,7 @@ export type MarkdownNode =
   | MarkdownImageNode
   | MarkdownInlineCodeNode
   | MarkdownItalicNode
+  | MarkdownEmphasisNode
   | MarkdownLineBreakNode
   | MarkdownLinkNode
   | MarkdownListItemNode
