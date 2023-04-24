@@ -41,7 +41,6 @@ export type State = {
   readUntil: (predicate: (char: string) => boolean) => string;
   cloneParser: () => { parse: (src: string) => MarkdownNode[] };
   slice: (position: number, length?: number) => string;
-  moveToStartOfLine: () => void;
 };
 
 export type Rule<T extends MarkdownNodeBase> = {
@@ -78,13 +77,12 @@ export function mdAST(config: ParserConfig = {}) {
     indent: 0,
     length: 0,
     charAt,
-    progress, // progressBy?
+    progress,
     progressUntil,
     parseInline,
     readUntil,
     cloneParser,
     slice,
-    moveToStartOfLine,
   };
 
   /**
@@ -94,15 +92,29 @@ export function mdAST(config: ParserConfig = {}) {
     return mdAST(config);
   }
 
-  function moveToStartOfLine() {
-    state.position = state.lineStart;
-  }
+  // Cache entry for the current state.chatAt(0) call
+  const charAtCache = {
+    position: -1,
+    value: '',
+  };
 
   /**
    * Get the character at the given position relative to the current position
    */
   function charAt(position: number) {
-    return state.src.charAt(state.position + position);
+    const index = state.position + position;
+
+    // Ignore cache if we are not "current" position
+    if (position !== 0) {
+      return state.src.charAt(index);
+    }
+
+    if (index !== charAtCache.position) {
+      charAtCache.position = index;
+      charAtCache.value = state.src.charAt(index);
+    }
+
+    return charAtCache.value;
   }
 
   function slice(position: number, length?: number) {
@@ -252,15 +264,16 @@ export function mdAST(config: ParserConfig = {}) {
         break;
       }
 
-      // Check if we're at the start of an inline rule
-      if (findRule('inline')) {
-        break;
-      }
-
+      // If is escaped char, ignore \ and add next char. Then skip to start of loop
       if (char === '\\' && ESCAPE_CHARS.includes(charAt(1))) {
         value += charAt(1);
         state.position += 2;
         continue;
+      }
+
+      // Check if we're at the start of an inline rule
+      if (findRule('inline')) {
+        break;
       }
 
       value += char;

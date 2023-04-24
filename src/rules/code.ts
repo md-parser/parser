@@ -1,6 +1,7 @@
 import { MarkdownCodeNode } from '../nodes';
 import { Rule } from '../parser-v2';
 
+const BACKTICK = '`';
 const CODE_BACKTICKS = '```';
 
 export const codeRule: Rule<MarkdownCodeNode> = {
@@ -12,7 +13,11 @@ export const codeRule: Rule<MarkdownCodeNode> = {
       return true;
     }
 
-    if (state.charAt(0) === '`' && state.charAt(1) === '`' && state.charAt(2) === '`') {
+    if (
+      state.charAt(0) === BACKTICK &&
+      state.charAt(1) === BACKTICK &&
+      state.charAt(2) === BACKTICK
+    ) {
       // TODO Validate ending
       return true;
     }
@@ -44,12 +49,14 @@ export const codeRule: Rule<MarkdownCodeNode> = {
     // skip ```
     state.progress(3);
 
-    const language = state.readUntil(() => state.charAt(0) === '\n') || undefined;
+    const language = state.readUntil((char) => char === '\n') || undefined;
 
     // skip newline
     state.progress(1);
 
-    const value = state.readUntil(() => state.slice(0, 3) === CODE_BACKTICKS);
+    const value = state.readUntil(
+      (char) => char === BACKTICK && state.slice(0, 3) === CODE_BACKTICKS,
+    );
 
     // skip ```
     state.progress(3);

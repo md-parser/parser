@@ -1,7 +1,7 @@
 import { MarkdownImageNode } from '../nodes';
 import { Rule } from '../parser-v2';
 
-const IMAGE_REGEX = /^!\[.*]\(.*\)/;
+const IMAGE_REGEX = /^!\[.*?]\(.*\)/;
 
 export const imageRule: Rule<MarkdownImageNode> = {
   type: 'inline',
@@ -17,7 +17,7 @@ export const imageRule: Rule<MarkdownImageNode> = {
     // skip ![
     state.progress(2);
 
-    const alt = state.readUntil(() => state.charAt(0) === ']');
+    const alt = state.readUntil((char) => char === ']');
 
     // skip ](
     state.progress(2);

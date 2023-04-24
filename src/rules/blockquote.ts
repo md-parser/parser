@@ -5,20 +5,25 @@ export const blockquoteRule: Rule<MarkdownBlockQuoteNode> = {
   type: 'inline-block',
   name: 'blockquote',
   test(state) {
-    if (state.position < state.lineStart + state.indent) {
+    if (state.charAt(0) !== '>') {
       return false;
     }
 
-    if (state.indent > 3) {
+    if (state.position > state.lineStart + state.indent) {
       return false;
     }
 
-    return state.charAt(0) === '>';
+    return true;
   },
   parse(state) {
     // Read until the next newline that isn't a blockquote
     const value = state.readUntil(() => {
       if (state.charAt(0) === '\n' && state.charAt(1) !== '>') {
+        for (let i = 0; i < 4; i++) {
+          if (state.charAt(i) === '>') {
+            return false;
+          }
+        }
         return true;
       }
 
@@ -26,7 +31,7 @@ export const blockquoteRule: Rule<MarkdownBlockQuoteNode> = {
     });
 
     // Remove the > from the start of each line
-    const cleanValue = value.replace(/^> ?/gm, '');
+    const cleanValue = value.replace(/^\s*> ?/gm, '');
 
     return {
       type: 'blockquote',

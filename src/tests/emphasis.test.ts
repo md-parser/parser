@@ -9,7 +9,7 @@ describe('parse.emphasis', () => {
         type: 'paragraph',
         children: [
           {
-            type: 'italic',
+            type: 'emphasis',
             children: [
               {
                 type: 'text',
@@ -30,7 +30,7 @@ describe('parse.emphasis', () => {
         type: 'paragraph',
         children: [
           {
-            type: 'italic',
+            type: 'emphasis',
             children: [
               {
                 type: 'text',
@@ -120,7 +120,7 @@ describe('parse.emphasis', () => {
                 type: 'strong',
                 children: [
                   {
-                    type: 'italic',
+                    type: 'emphasis',
                     children: [
                       {
                         type: 'text',
@@ -181,7 +181,7 @@ describe('parse.emphasis', () => {
             value: '*',
           },
           {
-            type: 'italic',
+            type: 'emphasis',
             children: [
               {
                 type: 'text',

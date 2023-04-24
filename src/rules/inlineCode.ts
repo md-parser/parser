@@ -21,7 +21,7 @@ export const inlineCodeRule: Rule<MarkdownInlineCodeNode> = {
     // skip `
     state.progress(1);
 
-    const value = state.readUntil(() => state.charAt(0) === '`');
+    const value = state.readUntil((char) => char === '`');
 
     // skip `
     state.progress(1);

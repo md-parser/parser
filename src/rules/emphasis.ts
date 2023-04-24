@@ -11,7 +11,7 @@ export const emphasisRule: Rule<MarkdownEmphasisNode> = {
   test(state) {
     const char = state.charAt(0);
 
-    if (!isSpecialCharacter(char)) {
+    if (!isSpecialCharacter(char) || isSpecialCharacter(state.charAt(1))) {
       return false;
     }
 
