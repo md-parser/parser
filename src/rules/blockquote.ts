@@ -21,7 +21,12 @@ export const blockquoteRule: Rule<MarkdownBlockQuoteNode> = {
     const value = state.readUntil(() => {
       if (state.charAt(0) === '\n' && state.charAt(1) !== '>') {
         // Check if the next line is indented
-        for (let i = 0; i < 4; i++) {
+        for (let i = 1; i < 4; i++) {
+          // And is not a newline
+          if (state.charAt(i) === '\n') {
+            return true;
+          }
+
           if (state.charAt(i + 1) === '>') {
             return false;
           }

@@ -93,4 +93,39 @@ describe('parse.blockquote', () => {
       },
     ]);
   });
+
+  it('should parse two blockquotes seperated by a newline', () => {
+    const ast = parseMarkdown('> Line 1\n\n> Line 2');
+
+    expect(ast).toEqual([
+      {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'paragraph',
+            children: [
+              {
+                type: 'text',
+                value: 'Line 1',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'blockquote',
+        children: [
+          {
+            type: 'paragraph',
+            children: [
+              {
+                type: 'text',
+                value: 'Line 2',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
 });
