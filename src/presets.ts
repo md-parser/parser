@@ -1,10 +1,18 @@
-import { SubscriptExpression } from './expressions/subscript';
-import { SuperscriptExpression } from './expressions/superscript';
-import { Expression } from './types';
+import { striketroughRule } from './rules/striketrough';
+import { subscriptRule } from './rules/subscript';
+import { superscriptRule } from './rules/superscript';
+import {
+  MarkdownStrikeTroughNode,
+  MarkdownSubscriptNode,
+  MarkdownSuperscriptNode,
+} from './types/nodes';
+import { Rule } from './types/rule';
 
 /**
  * Github Flavored Markdown
  */
-export function GFM(): Expression[] {
-  return [SuperscriptExpression, SubscriptExpression];
+export function GFM(): Rule<
+  MarkdownSubscriptNode | MarkdownStrikeTroughNode | MarkdownSuperscriptNode
+>[] {
+  return [superscriptRule, subscriptRule, striketroughRule];
 }

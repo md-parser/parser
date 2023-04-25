@@ -1,10 +1,11 @@
+import { State } from '../parser';
 import {
   MarkdownTableDataNode,
   MarkdownTableHeaderNode,
   MarkdownTableNode,
   MarkdownTableRowNode,
-} from '../nodes';
-import { Rule, State } from '../parser-v2';
+} from '../types/nodes';
+import { Rule } from '../types/rule';
 
 const SPLIT_PIPE_REGEX = /(?:^|[^\\])\|/;
 // Check if the next line is a table head and the next line after that is a table align line

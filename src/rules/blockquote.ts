@@ -1,9 +1,10 @@
-import { MarkdownBlockQuoteNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownBlockQuoteNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 export const blockquoteRule: Rule<MarkdownBlockQuoteNode> = {
   type: 'inline-block',
   name: 'blockquote',
+  specialChars: '>',
   test(state) {
     if (state.charAt(0) !== '>') {
       return false;

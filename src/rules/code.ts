@@ -1,5 +1,5 @@
-import { MarkdownCodeNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownCodeNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 const BACKTICK = '`';
 const CODE_BACKTICKS = '```';

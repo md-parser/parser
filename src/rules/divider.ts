@@ -1,5 +1,5 @@
-import { MarkdownDividerNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownDividerNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 export const dividerRule: Rule<MarkdownDividerNode> = {
   type: 'block',

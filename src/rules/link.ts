@@ -1,11 +1,12 @@
-import { MarkdownLinkNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownLinkNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 const LINK_REGEX = /^\[.*]\(.*\)/;
 
 export const linkRule: Rule<MarkdownLinkNode> = {
   type: 'inline',
   name: 'link',
+  specialChars: '[',
   test(state) {
     if (state.charAt(0) !== '[') {
       return false;

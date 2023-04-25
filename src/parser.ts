@@ -1,4 +1,3 @@
-import { MarkdownNode, MarkdownNodeBase, MarkdownTextNode } from './nodes';
 import { blockquoteRule } from './rules/blockquote';
 import { codeRule } from './rules/code';
 import { dividerRule } from './rules/divider';
@@ -9,17 +8,15 @@ import { inlineCodeRule } from './rules/inlineCode';
 import { lineBreakRule } from './rules/lineBreak';
 import { linkRule } from './rules/link';
 import { listRule } from './rules/list';
-import { striketroughRule } from './rules/striketrough';
 import { strongRule } from './rules/strong';
-import { subscriptRule } from './rules/subscript';
-import { superscriptRule } from './rules/superscript';
 import { tableRule } from './rules/table';
-import { Expression } from './types';
+import { MarkdownNode, MarkdownTextNode } from './types/nodes';
+import { Rule } from './types/rule';
 
 const ESCAPE_CHARS = '!"#$%&\'()\\*+,-./:;<=>?@[]^_`{|}~';
 
 export type ParserConfig = {
-  presets?: Expression[] | Expression[][];
+  presets?: Rule<MarkdownNode>[] | Rule<MarkdownNode>[][];
 };
 
 export type State = {
@@ -43,15 +40,8 @@ export type State = {
   slice: (position: number, length?: number) => string;
 };
 
-export type Rule<T extends MarkdownNodeBase> = {
-  type: 'block' | 'inline' | 'inline-block';
-  name: string;
-  test: (state: Readonly<State>) => boolean;
-  parse: (state: Readonly<State>) => T;
-};
-
 export function mdAST(config: ParserConfig = {}) {
-  const rules: Rule<any>[] = [
+  const rules: Rule<MarkdownNode>[] = [
     codeRule,
     dividerRule,
     headingRule,
@@ -64,11 +54,17 @@ export function mdAST(config: ParserConfig = {}) {
     strongRule,
     emphasisRule,
     tableRule,
-    // gfm
-    striketroughRule,
-    subscriptRule,
-    superscriptRule,
   ];
+
+  if (config.presets) {
+    rules.push(...config.presets.flat());
+  }
+
+  // Set of characters that can be used to start a rule
+  // We use this to quickly skip over characters that can't start a rule
+  const specialChars = new Set<string>(
+    rules.flatMap((rule) => ('specialChars' in rule ? rule.specialChars : [])),
+  );
 
   const state: State = {
     src: '',
@@ -164,6 +160,10 @@ export function mdAST(config: ParserConfig = {}) {
    * Find a rule by type
    */
   function findRule(type: 'block' | 'inline'): Rule<MarkdownNode> | null {
+    if (type === 'inline' && !specialChars.has(charAt(0))) {
+      return null;
+    }
+
     for (const rule of rules) {
       if ((rule.type === type || rule.type === 'inline-block') && rule.test(state)) {
         return rule;

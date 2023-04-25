@@ -1,5 +1,5 @@
-import { MarkdownHeadingNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownHeadingNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 function getLevel(src: string) {
   const length = src.length;

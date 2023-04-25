@@ -1,17 +1,20 @@
-import { MarkdownStrikeTroughNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownStrikeTroughNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 export const striketroughRule: Rule<MarkdownStrikeTroughNode> = {
   type: 'inline',
   name: 'striketrough',
+  specialChars: '~',
   test(state) {
     if (state.charAt(0) !== '~') {
       return false;
     }
 
-    // TODO Check if there is and ending ^
+    if (state.charAt(1) !== '~') {
+      return false;
+    }
 
-    return state.charAt(1) === '~';
+    return state.src.includes('~~', state.position + 3);
   },
   parse(state) {
     // skip ~~

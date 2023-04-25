@@ -1,5 +1,5 @@
-import { MarkdownStrongNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownStrongNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 function isSpecialCharacter(char: string) {
   return char === '*' || char === '_'; // || char === '~';
@@ -8,6 +8,7 @@ function isSpecialCharacter(char: string) {
 export const strongRule: Rule<MarkdownStrongNode> = {
   type: 'inline',
   name: 'strong',
+  specialChars: ['*', '_'],
   test(state) {
     const char = state.charAt(0);
 

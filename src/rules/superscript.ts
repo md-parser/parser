@@ -1,17 +1,20 @@
-import { MarkdownSuperscriptNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownSuperscriptNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 export const superscriptRule: Rule<MarkdownSuperscriptNode> = {
   type: 'inline',
   name: 'superscript',
+  specialChars: '^',
   test(state) {
     if (state.charAt(0) !== '^') {
       return false;
     }
 
-    // TODO Check if there is and ending ^
+    if (state.charAt(1) === '^') {
+      return false;
+    }
 
-    return true;
+    return state.src.includes('^', state.position + 2);
   },
   parse(state) {
     // skip ^

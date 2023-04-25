@@ -1,5 +1,5 @@
-import { MarkdownInlineCodeNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownInlineCodeNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 export const inlineCodeRule: Rule<MarkdownInlineCodeNode> = {
   type: 'block',

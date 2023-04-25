@@ -1,5 +1,5 @@
-import { MarkdownListNode } from '../nodes';
-import { Rule } from '../parser-v2';
+import { MarkdownListNode } from '../types/nodes';
+import { Rule } from '../types/rule';
 
 const LIST_ITEM_REGEX = /^\s*(?:[*+-]|\d+\.)[\t ]/;
 const ORDERED_LIST_ITEM_REGEX = /^[\t ]*\d+. /;
@@ -31,6 +31,7 @@ function getLevel(value: string): number {
 export const listRule: Rule<MarkdownListNode> = {
   type: 'inline-block',
   name: 'list',
+  specialChars: ['*', '-', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
   test(state) {
     if (state.position > state.lineStart + state.indent) {
       return false;
