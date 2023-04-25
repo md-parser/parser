@@ -1,9 +1,9 @@
 {
-  "name": "@saartje87/md-ast",
+  "name": "@md-parser/parser",
   "version": "0.6.1",
   "description": "Markdown parser",
   "main": "dist/index.esm.js",
-  "repository": "https://github.com/Saartje87/markdown-parser",
+  "repository": "https://github.com/md-parser/parser",
   "author": "Niek Saarberg <n.saarberg@gmail.com>",
   "license": "MIT",
   "type": "module",
