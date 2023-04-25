@@ -1,4 +1,5 @@
 import { parseMarkdown } from '../parseMarkdown';
+import { GFM } from '../presets';
 
 describe('parse.emphasis', () => {
   it('should parse italic with *', () => {
@@ -86,7 +87,9 @@ describe('parse.emphasis', () => {
   });
 
   it('should parse strikethrough with ~~', () => {
-    const ast = parseMarkdown('~~Hello world~~');
+    const ast = parseMarkdown('~~Hello world~~', {
+      presets: [GFM()],
+    });
 
     expect(ast).toEqual([
       {
@@ -106,8 +109,10 @@ describe('parse.emphasis', () => {
     ]);
   });
 
-  it('should parse italic with inline content', () => {
-    const ast = parseMarkdown('~~***test***~~');
+  it('should parse emphasis with inline content', () => {
+    const ast = parseMarkdown('~~***test***~~', {
+      presets: [GFM()],
+    });
 
     expect(ast).toEqual([
       {

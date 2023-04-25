@@ -1,6 +1,6 @@
-import { MarkdownNode } from './nodes';
-import { ParserConfig, mdAST } from './parser-v2';
+import { ParserConfig, mdAST } from './parser';
+import { MarkdownNode } from './types/nodes';
 
 export function parseMarkdown(src: string, config?: ParserConfig): MarkdownNode[] {
-  return mdAST().parse(src);
+  return mdAST(config).parse(src);
 }
