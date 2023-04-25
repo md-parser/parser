@@ -4,7 +4,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["es2015", "es2017"],
+    "lib": ["ESNext"],
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
