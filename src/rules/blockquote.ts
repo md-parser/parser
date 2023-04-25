@@ -20,8 +20,9 @@ export const blockquoteRule: Rule<MarkdownBlockQuoteNode> = {
     // Read until the next newline that isn't a blockquote
     const value = state.readUntil(() => {
       if (state.charAt(0) === '\n' && state.charAt(1) !== '>') {
+        // Check if the next line is indented
         for (let i = 0; i < 4; i++) {
-          if (state.charAt(i) === '>') {
+          if (state.charAt(i + 1) === '>') {
             return false;
           }
         }
