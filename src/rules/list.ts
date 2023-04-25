@@ -41,7 +41,7 @@ export const listRule: Rule<MarkdownListNode> = {
 
     return LIST_ITEM_REGEX.test(start);
   },
-  parse(state) {
+  parse(state, parser) {
     function parseList(depth: number): MarkdownListNode {
       const lineStart = state.src.lastIndexOf('\n', state.position) + 1;
       const line = state.src.slice(lineStart);
@@ -88,11 +88,11 @@ export const listRule: Rule<MarkdownListNode> = {
           break;
         }
 
-        state.progress(bullet.length + (lineStart - state.position));
+        parser.skip(bullet.length + (lineStart - state.position));
 
         node.children.push({
           type: 'listItem',
-          children: state.parseInline(() => {
+          children: parser.parseInline(() => {
             return (
               (state.charAt(0) === '\n' && state.charAt(1) === '\n') ||
               (state.charAt(0) === '\n' && isList(state.slice(1)))

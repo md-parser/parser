@@ -19,21 +19,21 @@ export const emphasisRule: Rule<MarkdownEmphasisNode> = {
 
     return hasValidClosingInBlock(state, char);
   },
-  parse(state) {
+  parse(state, parser) {
     const symbol = state.charAt(0);
 
     // skip symbol
-    state.progress(1);
+    parser.skip(1);
 
     const node: MarkdownEmphasisNode = {
       type: 'emphasis',
-      children: state.parseInline(() => {
+      children: parser.parseInline(() => {
         return state.charAt(0) === symbol;
       }),
     };
 
     // skip symbol
-    state.progress(1);
+    parser.skip(1);
 
     return node;
   },

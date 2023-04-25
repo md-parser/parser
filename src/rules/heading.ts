@@ -31,19 +31,19 @@ export const headingRule: Rule<MarkdownHeadingNode> = {
 
     return level > 0 && level < 7;
   },
-  parse(state) {
+  parse(state, parser) {
     const start = state.position;
 
-    state.progressUntil((char) => char === ' ');
+    parser.skipUntil((char) => char === ' ');
 
     const level = (state.position - start) as 1 | 2 | 3 | 4 | 5 | 6;
 
-    state.progress(1);
+    parser.skip(1);
 
     return {
       type: 'heading',
       level,
-      children: state.parseInline(() => state.charAt(0) === '\n'),
+      children: parser.parseInline(() => state.charAt(0) === '\n'),
     };
   },
 };

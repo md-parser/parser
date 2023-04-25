@@ -1,4 +1,4 @@
-import { State } from '../parser';
+import { ParserContext, StateContext } from '../parser';
 import {
   MarkdownTableDataNode,
   MarkdownTableHeaderNode,
@@ -39,26 +39,26 @@ function parseAlignLine(line: string): Align[] {
   });
 }
 
-function parseTableHead(state: State): MarkdownTableRowNode {
+function parseTableHead(state: StateContext, parser: ParserContext): MarkdownTableRowNode {
   const rows: MarkdownTableHeaderNode[] = [];
 
   // Skip to row content
-  state.progressUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
+  parser.skipUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
 
   while (state.charAt(0) !== '\n' && state.charAt(0) !== ' ') {
     const rowNode: MarkdownTableHeaderNode = {
       type: 'tableHeader',
       align: 'left',
-      children: state.parseInline(() => state.charAt(0) === '|' && state.charAt(-1) !== '\\'),
+      children: parser.parseInline(() => state.charAt(0) === '|' && state.charAt(-1) !== '\\'),
     };
 
     rows.push(rowNode);
 
-    state.progressUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
+    parser.skipUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
   }
 
   // Skip to next row start
-  state.progressUntil(() => state.charAt(0) === '|');
+  parser.skipUntil(() => state.charAt(0) === '|');
 
   // Parse alignment line
   // | --- | :---: | ---: |
@@ -73,8 +73,8 @@ function parseTableHead(state: State): MarkdownTableRowNode {
   }
 
   // Skip EOL
-  state.progressUntil(() => state.charAt(0) === '\n');
-  state.progress(1);
+  parser.skipUntil(() => state.charAt(0) === '\n');
+  parser.skip(1);
 
   return {
     type: 'tableRow',
@@ -82,33 +82,37 @@ function parseTableHead(state: State): MarkdownTableRowNode {
   };
 }
 
-function parseTableRows(state: State, align: Align[]): MarkdownTableRowNode[] {
+function parseTableRows(
+  state: StateContext,
+  parser: ParserContext,
+  align: Align[],
+): MarkdownTableRowNode[] {
   const rows: MarkdownTableRowNode[] = [];
 
   // Skip whitespaces
-  state.progressUntil(() => state.charAt(0) === '|');
+  parser.skipUntil(() => state.charAt(0) === '|');
 
   while (state.charAt(0) === '|') {
     const row: MarkdownTableDataNode[] = [];
 
-    state.progressUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
+    parser.skipUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
 
     while (state.charAt(0) !== '\n' && state.charAt(0) !== '') {
       row.push({
         type: 'tableData',
         align: 'left',
-        children: state.parseInline(() => state.charAt(0) === '|' && state.charAt(-1) !== '\\'),
+        children: parser.parseInline(() => state.charAt(0) === '|' && state.charAt(-1) !== '\\'),
       });
 
-      state.progressUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
+      parser.skipUntil(() => state.charAt(0) !== '|' && state.charAt(0) !== ' ');
     }
 
     // Skip EOL
     if (state.charAt(0) === '\n') {
-      state.progress(1);
+      parser.skip(1);
     }
 
-    state.progressUntil(() => state.charAt(0) !== ' ');
+    parser.skipUntil(() => state.charAt(0) !== ' ');
 
     // Apply alignment to cells
     for (const [index, cell] of row.entries()) {
@@ -134,14 +138,14 @@ export const tableRule: Rule<MarkdownTableNode> = {
 
     return TABLE_MATCH_REGEX.test(state.src.slice(state.position));
   },
-  parse(state) {
-    const header = parseTableHead(state);
+  parse(state, parser) {
+    const header = parseTableHead(state, parser);
     const align = header.children.map((cell) => cell.align);
 
     return {
       type: 'table',
       header,
-      rows: parseTableRows(state, align),
+      rows: parseTableRows(state, parser, align),
     };
   },
 };

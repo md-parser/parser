@@ -17,14 +17,14 @@ export const superscriptRule: Rule<MarkdownSuperscriptNode> = {
 
     return hasValidClosingInBlock(state, '^');
   },
-  parse(state) {
+  parse(state, parser) {
     // skip ^
-    state.progress(1);
+    parser.skip(1);
 
-    const children = state.parseInline(() => state.charAt(0) === '^' && state.charAt(-1) !== '\\');
+    const children = parser.parseInline(() => state.charAt(0) === '^' && state.charAt(-1) !== '\\');
 
     // skip ^
-    state.progress(1);
+    parser.skip(1);
 
     return {
       type: 'superscript',

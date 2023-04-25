@@ -13,14 +13,14 @@ export const inlineCodeRule: Rule<MarkdownInlineCodeNode> = {
 
     return false;
   },
-  parse(state) {
+  parse(state, parser) {
     // skip `
-    state.progress(1);
+    parser.skip(1);
 
-    const value = state.readUntil((char) => char === '`');
+    const value = parser.readUntil((char) => char === '`');
 
     // skip `
-    state.progress(1);
+    parser.skip(1);
 
     return {
       type: 'inlineCode',

@@ -38,8 +38,8 @@ export const dividerRule: Rule<MarkdownDividerNode> = {
 
     return symbolCount >= 3;
   },
-  parse(state) {
-    state.progressUntil((char) => char === '\n');
+  parse(state, parser) {
+    parser.skipUntil((char) => char === '\n');
 
     return {
       type: 'divider',

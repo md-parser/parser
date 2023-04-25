@@ -13,14 +13,14 @@ export const striketroughRule: Rule<MarkdownStrikeTroughNode> = {
 
     return hasValidClosingInBlock(state, '~~');
   },
-  parse(state) {
+  parse(state, parser) {
     // skip ~~
-    state.progress(2);
+    parser.skip(2);
 
-    const children = state.parseInline(() => state.charAt(0) === '~' && state.charAt(1) === '~');
+    const children = parser.parseInline(() => state.charAt(0) === '~' && state.charAt(1) === '~');
 
     // skip ~~
-    state.progress(2);
+    parser.skip(2);
 
     return {
       type: 'strikeThrough',

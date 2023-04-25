@@ -24,21 +24,21 @@ export const codeRule: Rule<MarkdownCodeNode> = {
 
     return false;
   },
-  parse(state) {
+  parse(state, parser) {
     if (state.indent >= 4) {
       const match = state.src.slice(state.position - state.indent).match(/^( {4}[^\n]+(?:\n|$))+/g);
 
       if (!match) {
         return {
           type: 'code',
-          value: state.readUntil(() => state.charAt(0) === '\n'),
+          value: parser.readUntil(() => state.charAt(0) === '\n'),
         };
       }
 
       const raw = match[0];
       const value = raw.replace(/^(\s{4})/gm, '');
 
-      state.progress(raw.length - state.indent);
+      parser.skip(raw.length - state.indent);
 
       return {
         type: 'code',
@@ -47,19 +47,19 @@ export const codeRule: Rule<MarkdownCodeNode> = {
     }
 
     // skip ```
-    state.progress(3);
+    parser.skip(3);
 
-    const language = state.readUntil((char) => char === '\n') || undefined;
+    const language = parser.readUntil((char) => char === '\n') || undefined;
 
     // skip newline
-    state.progress(1);
+    parser.skip(1);
 
-    const value = state.readUntil(
+    const value = parser.readUntil(
       (char) => char === BACKTICK && state.slice(0, 3) === CODE_BACKTICKS,
     );
 
     // skip ```
-    state.progress(3);
+    parser.skip(3);
 
     return {
       type: 'code',

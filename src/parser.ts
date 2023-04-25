@@ -19,7 +19,7 @@ export type ParserConfig = {
   presets?: Rule<MarkdownNode>[] | Rule<MarkdownNode>[][];
 };
 
-export type State = {
+export type StateContext = {
   // Markdown string
   src: string;
   // Position of the current character
@@ -32,12 +32,15 @@ export type State = {
   length: number;
 
   charAt: (offset: number) => string;
-  progress: (position: number) => void;
-  progressUntil: (predicate: (char: string) => boolean) => void;
+  slice: (position: number, length?: number) => string;
+};
+
+export type ParserContext = {
+  skip: (position: number) => void; // progress
+  skipUntil: (predicate: (char: string) => boolean) => void; // progressUntil
   parseInline: (predicate: () => boolean) => MarkdownNode[];
   readUntil: (predicate: (char: string) => boolean) => string;
-  cloneParser: () => { parse: (src: string) => MarkdownNode[] };
-  slice: (position: number, length?: number) => string;
+  parse: (src: string) => MarkdownNode[];
 };
 
 export function mdAST(config: ParserConfig = {}) {
@@ -66,33 +69,37 @@ export function mdAST(config: ParserConfig = {}) {
     rules.flatMap((rule) => ('ruleStartChar' in rule ? rule.ruleStartChar : [])),
   );
 
-  const state: State = {
+  // Parser state
+  const state: StateContext = {
     src: '',
     position: 0,
     lineStart: 0,
     indent: 0,
     length: 0,
     charAt,
-    progress,
-    progressUntil,
+    slice,
+  };
+  // Parser context - these functions are used by rules to progress the parser
+  const parserContext: ParserContext = {
+    skip,
+    skipUntil,
     parseInline,
     readUntil,
-    cloneParser,
-    slice,
+    parse: parseSubTree,
   };
 
   // Cached version of the parser has a nice performance boost for larger markdown strings
   let parserInstance: ReturnType<typeof mdAST>;
 
   /**
-   * Clone parser with the same rules and config
+   * Parse the given markdown string from within a rule
    */
-  function cloneParser() {
+  function parseSubTree(src: string) {
     if (!parserInstance) {
       parserInstance = mdAST(config);
     }
 
-    return parserInstance;
+    return parserInstance.parse(src);
   }
 
   // Cache entry for the current state.chatAt(0) call
@@ -132,14 +139,14 @@ export function mdAST(config: ParserConfig = {}) {
    * Set the current position from within a rule, useful when moving the position
    * forward manually in a rule
    */
-  function progress(position: number) {
+  function skip(position: number) {
     state.position = state.position + position;
   }
 
   /**
    * Progress the position until the predicate returns true
    */
-  function progressUntil(predicate: (char: string) => boolean) {
+  function skipUntil(predicate: (char: string) => boolean) {
     while (state.position < state.length) {
       if (predicate(charAt(0))) {
         break;
@@ -212,7 +219,7 @@ export function mdAST(config: ParserConfig = {}) {
     const rule = findRule('block');
 
     if (rule) {
-      return rule.parse(state);
+      return rule.parse(state, parserContext);
     }
 
     // No block found, parse as paragraph
@@ -249,7 +256,7 @@ export function mdAST(config: ParserConfig = {}) {
       const inlineRule = findRule('inline');
 
       if (inlineRule) {
-        nodes.push(inlineRule.parse(state));
+        nodes.push(inlineRule.parse(state, parserContext));
       } else {
         const textNode = parseText(predicate);
 

@@ -8,9 +8,9 @@ export const lineBreakRule: Rule<MarkdownLineBreakNode> = {
   test(state) {
     return state.charAt(0) === '\n';
   },
-  parse(state) {
+  parse(state, parser) {
     // skip \n
-    state.progress(1);
+    parser.skip(1);
 
     return {
       type: 'lineBreak',

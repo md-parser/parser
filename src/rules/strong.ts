@@ -24,21 +24,21 @@ export const strongRule: Rule<MarkdownStrongNode> = {
     // +3 because we expact the next not to be a special character
     return hasValidClosingInBlock(state, char + char);
   },
-  parse(state) {
+  parse(state, parser) {
     const symbol = state.charAt(0);
 
     // skip symbol
-    state.progress(2);
+    parser.skip(2);
 
     const node: MarkdownStrongNode = {
       type: 'strong',
-      children: state.parseInline(() => {
+      children: parser.parseInline(() => {
         return state.charAt(0) === symbol && state.charAt(1) === symbol;
       }),
     };
 
     // skip symbol
-    state.progress(2);
+    parser.skip(2);
 
     return node;
   },

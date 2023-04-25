@@ -14,29 +14,29 @@ export const linkRule: Rule<MarkdownLinkNode> = {
 
     return LINK_REGEX.test(state.src.slice(state.position));
   },
-  parse(state) {
+  parse(state, parser) {
     // skip [
-    state.progress(1);
+    parser.skip(1);
 
-    const children = state.parseInline(() => state.charAt(0) === ']');
+    const children = parser.parseInline(() => state.charAt(0) === ']');
 
     // skip ](
-    state.progress(2);
+    parser.skip(2);
 
-    const href = state.readUntil((char) => char === '"' || char === ')').trimEnd();
+    const href = parser.readUntil((char) => char === '"' || char === ')').trimEnd();
     let title: string | undefined;
 
     if (state.charAt(0) === '"') {
       // skip "
-      state.progress(1);
+      parser.skip(1);
 
-      title = state.readUntil((char) => char === '"' || char === ')');
+      title = parser.readUntil((char) => char === '"' || char === ')');
     }
 
-    state.progressUntil((char) => char === ')');
+    parser.skipUntil((char) => char === ')');
 
     // skip )
-    state.progress(1);
+    parser.skip(1);
 
     return {
       type: 'link',
