@@ -64,4 +64,20 @@ describe('parse.paragraph', () => {
       },
     ]);
   });
+
+  it('should parse paragraph without trailing lineBreak', () => {
+    const ast = parseMarkdown('Hello world\n');
+
+    expect(ast).toEqual([
+      {
+        type: 'paragraph',
+        children: [
+          {
+            type: 'text',
+            value: 'Hello world',
+          },
+        ],
+      },
+    ]);
+  });
 });

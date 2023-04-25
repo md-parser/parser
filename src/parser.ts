@@ -227,7 +227,7 @@ export function mdAST(config: ParserConfig = {}) {
     return {
       type: 'paragraph',
       children: parseInline(() => {
-        return charAt(0) === '\n' && charAt(1) === '\n';
+        return charAt(0) === '\n' && (charAt(1) === '\n' || charAt(1) === '');
       }),
     };
   }
