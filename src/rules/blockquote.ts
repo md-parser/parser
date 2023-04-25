@@ -10,6 +10,8 @@ export const blockquoteRule: Rule<MarkdownBlockQuoteNode> = {
       return false;
     }
 
+    // Blockquote must be at the start of the line
+    // we need this check because we are using the inline-block type
     if (state.position > state.lineStart + state.indent) {
       return false;
     }
