@@ -4,7 +4,7 @@ import { Rule } from '../types/rule';
 export const striketroughRule: Rule<MarkdownStrikeTroughNode> = {
   type: 'inline',
   name: 'striketrough',
-  specialChars: '~',
+  ruleStartChar: '~',
   test(state) {
     if (state.charAt(0) !== '~') {
       return false;
@@ -13,6 +13,7 @@ export const striketroughRule: Rule<MarkdownStrikeTroughNode> = {
     if (state.charAt(1) !== '~') {
       return false;
     }
+
 
     return state.src.includes('~~', state.position + 3);
   },

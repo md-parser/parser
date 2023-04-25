@@ -6,7 +6,7 @@ const IMAGE_REGEX = /^!\[.*?]\(.*\)/;
 export const imageRule: Rule<MarkdownImageNode> = {
   type: 'inline',
   name: 'image',
-  specialChars: '!',
+  ruleStartChar: '!',
   test(state) {
     if (state.charAt(0) !== '!' && state.charAt(1) !== '[') {
       return false;

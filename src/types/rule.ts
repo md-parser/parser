@@ -9,7 +9,7 @@ export type InlineRule<T extends MarkdownNodeBase> = {
   /**
    * Single character that can be used to start this rule
    */
-  specialChars: string | string[];
+  ruleStartChar: string | string[];
   test: (state: Readonly<State>) => boolean;
   parse: (state: Readonly<State>) => T;
 };

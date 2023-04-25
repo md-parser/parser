@@ -8,7 +8,7 @@ function isSpecialCharacter(char: string) {
 export const strongRule: Rule<MarkdownStrongNode> = {
   type: 'inline',
   name: 'strong',
-  specialChars: ['*', '_'],
+  ruleStartChar: ['*', '_'],
   test(state) {
     const char = state.charAt(0);
 

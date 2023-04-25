@@ -4,7 +4,7 @@ import { Rule } from '../types/rule';
 export const superscriptRule: Rule<MarkdownSuperscriptNode> = {
   type: 'inline',
   name: 'superscript',
-  specialChars: '^',
+  ruleStartChar: '^',
   test(state) {
     if (state.charAt(0) !== '^') {
       return false;

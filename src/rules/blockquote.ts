@@ -4,7 +4,7 @@ import { Rule } from '../types/rule';
 export const blockquoteRule: Rule<MarkdownBlockQuoteNode> = {
   type: 'inline-block',
   name: 'blockquote',
-  specialChars: '>',
+  ruleStartChar: '>',
   test(state) {
     if (state.charAt(0) !== '>') {
       return false;

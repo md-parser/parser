@@ -63,7 +63,7 @@ export function mdAST(config: ParserConfig = {}) {
   // Set of characters that can be used to start a rule
   // We use this to quickly skip over characters that can't start a rule
   const specialChars = new Set<string>(
-    rules.flatMap((rule) => ('specialChars' in rule ? rule.specialChars : [])),
+    rules.flatMap((rule) => ('ruleStartChar' in rule ? rule.ruleStartChar : [])),
   );
 
   const state: State = {

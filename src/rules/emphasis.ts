@@ -8,7 +8,7 @@ function isSpecialCharacter(char: string) {
 export const emphasisRule: Rule<MarkdownEmphasisNode> = {
   type: 'inline',
   name: 'emphasis',
-  specialChars: ['*', '_'],
+  ruleStartChar: ['*', '_'],
   test(state) {
     const char = state.charAt(0);
 

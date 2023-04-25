@@ -31,7 +31,7 @@ function getLevel(value: string): number {
 export const listRule: Rule<MarkdownListNode> = {
   type: 'inline-block',
   name: 'list',
-  specialChars: ['*', '-', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+  ruleStartChar: ['*', '-', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
   test(state) {
     if (state.position > state.lineStart + state.indent) {
       return false;
@@ -63,8 +63,6 @@ export const listRule: Rule<MarkdownListNode> = {
         const line = state.src.slice(lineStart);
         const ordered = ORDERED_LIST_ITEM_REGEX.test(line);
         const bullet = getBull(line);
-        // const levelIndex = bullet.lastIndexOf(' ', bullet.length - 2);
-        // const level = levelIndex === -1 ? 0 : levelIndex + 1;
 
         const level = getLevel(bullet);
 

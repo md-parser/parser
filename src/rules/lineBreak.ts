@@ -4,7 +4,7 @@ import { Rule } from '../types/rule';
 export const lineBreakRule: Rule<MarkdownLineBreakNode> = {
   type: 'inline',
   name: 'lineBreak',
-  specialChars: '\n',
+  ruleStartChar: '\n',
   test(state) {
     return state.charAt(0) === '\n';
   },

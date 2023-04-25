@@ -6,7 +6,7 @@ const LINK_REGEX = /^\[.*]\(.*\)/;
 export const linkRule: Rule<MarkdownLinkNode> = {
   type: 'inline',
   name: 'link',
-  specialChars: '[',
+  ruleStartChar: '[',
   test(state) {
     if (state.charAt(0) !== '[') {
       return false;

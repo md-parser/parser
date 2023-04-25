@@ -4,7 +4,7 @@ import { Rule } from '../types/rule';
 export const subscriptRule: Rule<MarkdownSubscriptNode> = {
   type: 'inline',
   name: 'subscript',
-  specialChars: '~',
+  ruleStartChar: '~',
   test(state) {
     if (state.charAt(0) !== '~') {
       return false;
