@@ -45,18 +45,18 @@ export type ParserContext = {
 
 export function mdAST(config: ParserConfig = {}) {
   const rules: Rule<MarkdownNode>[] = [
-    codeRule,
-    dividerRule,
-    headingRule,
+    codeRule, // codeRule needs to be the first rule
+    strongRule,
+    emphasisRule,
     linkRule,
     imageRule,
     lineBreakRule,
-    blockquoteRule,
+    dividerRule,
     inlineCodeRule,
+    headingRule,
     listRule,
-    strongRule,
-    emphasisRule,
     tableRule,
+    blockquoteRule,
   ];
 
   if (config.presets) {
@@ -68,6 +68,7 @@ export function mdAST(config: ParserConfig = {}) {
   const specialChars = new Set<string>(
     rules.flatMap((rule) => ('ruleStartChar' in rule ? rule.ruleStartChar : [])),
   );
+  const ruleStartChars = [...specialChars].join('');
 
   // Parser state
   const state: StateContext = {
@@ -174,7 +175,7 @@ export function mdAST(config: ParserConfig = {}) {
    * Find a rule by type
    */
   function findRule(type: 'block' | 'inline'): Rule<MarkdownNode> | null {
-    if (type === 'inline' && !specialChars.has(charAt(0))) {
+    if (type === 'inline' && !ruleStartChars.includes(charAt(0))) {
       return null;
     }
 
