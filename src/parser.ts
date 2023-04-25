@@ -198,8 +198,11 @@ export function mdAST(config: ParserConfig = {}) {
         state.indent = 0;
         state.lineStart = state.position + 1;
         state.position += 1;
-      } else if (char === ' ' || char === '\t') {
+      } else if (char === ' ') {
         state.indent += 1;
+        state.position += 1;
+      } else if (char === '\t') {
+        state.indent += 4;
         state.position += 1;
       } else {
         break;

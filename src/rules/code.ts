@@ -25,20 +25,25 @@ export const codeRule: Rule<MarkdownCodeNode> = {
     return false;
   },
   parse(state, parser) {
+    // Tabs are set to 4 spaces in markdown so we need to calculate the real indentation
+    const realIndent = state.position - state.lineStart;
+
     if (state.indent >= 4) {
-      const match = state.src.slice(state.position - state.indent).match(/^( {4}[^\n]+(?:\n|$))+/g);
+      const match = state.src
+        .slice(state.position - realIndent)
+        .match(/^((?: {4}|\t)[^\n]*(?:\n|$))+/g);
 
       if (!match) {
         return {
           type: 'code',
-          value: parser.readUntil(() => state.charAt(0) === '\n'),
+          value: parser.readUntil(() => state.charAt(-1) === '\n'),
         };
       }
 
       const raw = match[0];
-      const value = raw.replace(/^(\s{4})/gm, '');
+      const value = raw.replace(/^( {4}|\t)/gm, '');
 
-      parser.skip(raw.length - state.indent);
+      parser.skip(raw.length - realIndent);
 
       return {
         type: 'code',

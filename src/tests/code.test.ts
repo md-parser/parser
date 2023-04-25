@@ -12,6 +12,17 @@ describe('parse.code', () => {
     ]);
   });
 
+  it('should parse code indented by a tab', () => {
+    const ast = parseMarkdown('\tfoo\tbaz\t\tbim\n');
+
+    expect(ast).toEqual([
+      {
+        type: 'code',
+        value: 'foo\tbaz\t\tbim\n',
+      },
+    ]);
+  });
+
   it('should parse code with language', () => {
     const ast = parseMarkdown('```tsx\nHello world\n```');
 
