@@ -81,11 +81,18 @@ export function mdAST(config: ParserConfig = {}) {
     slice,
   };
 
+  // Cached version of the parser has a nice performance boost for larger markdown strings
+  let parserInstance: ReturnType<typeof mdAST>;
+
   /**
    * Clone parser with the same rules and config
    */
   function cloneParser() {
-    return mdAST(config);
+    if (!parserInstance) {
+      parserInstance = mdAST(config);
+    }
+
+    return parserInstance;
   }
 
   // Cache entry for the current state.chatAt(0) call
