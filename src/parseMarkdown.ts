@@ -1,9 +1,6 @@
-import { MarkdownNode } from './nodes';
-import { MarkdownParser, ParserConfig } from './parser';
+import { ParserConfig, mdAST } from './parser';
+import { MarkdownNode } from './types/nodes';
 
-export const parseMarkdown = (markdown: string, config: ParserConfig = {}): MarkdownNode[] => {
-  const expressions = config.presets?.flat() || [];
-
-  const parser = new MarkdownParser(markdown, expressions);
-  return parser.parse();
-};
+export function parseMarkdown(src: string, config?: ParserConfig): MarkdownNode[] {
+  return mdAST(config).parse(src);
+}

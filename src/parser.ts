@@ -1,154 +1,264 @@
-import { MarkdownExpression } from './expression';
-import { BlockquoteExpression } from './expressions/blockquote';
-import { CodeExpression } from './expressions/code';
-import { DividerExpression } from './expressions/divider';
-import { EmphasisExpression } from './expressions/emphasis';
-import { HeadingExpression } from './expressions/heading';
-import { ImageExpression } from './expressions/image';
-import { InlineCodeExpression } from './expressions/inlineCode';
-import { LineBreakExpression } from './expressions/lineBreak';
-import { LinkExpression } from './expressions/link';
-import { ListExpression } from './expressions/list';
-import { TableExpression } from './expressions/table';
-import { MarkdownNode, MarkdownTextNode } from './nodes';
-import { Expression } from './types';
+import { blockquoteRule } from './rules/blockquote';
+import { codeRule } from './rules/code';
+import { dividerRule } from './rules/divider';
+import { emphasisRule } from './rules/emphasis';
+import { headingRule } from './rules/heading';
+import { imageRule } from './rules/image';
+import { inlineCodeRule } from './rules/inlineCode';
+import { lineBreakRule } from './rules/lineBreak';
+import { linkRule } from './rules/link';
+import { listRule } from './rules/list';
+import { strongRule } from './rules/strong';
+import { tableRule } from './rules/table';
+import { MarkdownNode, MarkdownTextNode } from './types/nodes';
+import { Rule } from './types/rule';
 
 const ESCAPE_CHARS = '!"#$%&\'()\\*+,-./:;<=>?@[]^_`{|}~';
 
 export type ParserConfig = {
-  presets?: Expression[] | Expression[][];
+  presets?: Rule<MarkdownNode>[] | Rule<MarkdownNode>[][];
 };
 
-// To add custom node types, you can extend the MarkdownNode type:
-// export class MarkdownParser<T extends MarkdownNode = MarkdownNode> {}
-export class MarkdownParser {
-  private expressions: MarkdownExpression<MarkdownNode>[];
-  private readonly markdown: string;
-  private length: number;
-  private index = 0;
+export type StateContext = {
+  // Markdown string
+  src: string;
+  // Position of the current character
+  position: number;
+  // Starting pPosition of the current line
+  lineStart: number;
+  // Number of characters that indenting the current line
+  indent: number;
+  // Length of the markdown string
+  length: number;
 
-  // TODO Move markdown parameter to parse method?
-  constructor(markdown: string, expressions: Expression[] = []) {
-    this.markdown = markdown;
-    this.length = markdown.length;
+  charAt: (offset: number) => string;
+  slice: (position: number, length?: number) => string;
+};
 
-    this.expressions = [
-      new ListExpression(this),
-      new HeadingExpression(this),
-      new EmphasisExpression(this),
-      new LineBreakExpression(this),
-      new BlockquoteExpression(this),
-      new DividerExpression(this),
-      new LinkExpression(this),
-      new ImageExpression(this),
-      new InlineCodeExpression(this),
-      new CodeExpression(this),
-      new TableExpression(this),
-      ...expressions.map((expression) => new expression(this)),
-    ];
+export type ParserContext = {
+  skip: (position: number) => void; // progress
+  skipUntil: (predicate: (char: string) => boolean) => void; // progressUntil
+  parseInline: (predicate: () => boolean) => MarkdownNode[];
+  readUntil: (predicate: (char: string) => boolean) => string;
+  parse: (src: string) => MarkdownNode[];
+};
+
+export function mdAST(config: ParserConfig = {}) {
+  const rules: Rule<MarkdownNode>[] = [
+    codeRule,
+    dividerRule,
+    headingRule,
+    linkRule,
+    imageRule,
+    lineBreakRule,
+    blockquoteRule,
+    inlineCodeRule,
+    listRule,
+    strongRule,
+    emphasisRule,
+    tableRule,
+  ];
+
+  if (config.presets) {
+    rules.push(...config.presets.flat());
   }
 
-  getMatchingExpression(type: 'block' | 'inline'): MarkdownExpression<MarkdownNode> | null {
-    for (const expression of this.expressions) {
-      if (
-        (expression.type === type || expression.type === 'inline-block') &&
-        expression.matches()
-      ) {
-        return expression;
+  // Set of characters that can be used to start a rule
+  // We use this to quickly skip over characters that can't start a rule
+  const specialChars = new Set<string>(
+    rules.flatMap((rule) => ('ruleStartChar' in rule ? rule.ruleStartChar : [])),
+  );
+
+  // Parser state
+  const state: StateContext = {
+    src: '',
+    position: 0,
+    lineStart: 0,
+    indent: 0,
+    length: 0,
+    charAt,
+    slice,
+  };
+  // Parser context - these functions are used by rules to progress the parser
+  const parserContext: ParserContext = {
+    skip,
+    skipUntil,
+    parseInline,
+    readUntil,
+    parse: parseSubTree,
+  };
+
+  // Cached version of the parser has a nice performance boost for larger markdown strings
+  let parserInstance: ReturnType<typeof mdAST>;
+
+  /**
+   * Parse the given markdown string from within a rule
+   */
+  function parseSubTree(src: string) {
+    if (!parserInstance) {
+      parserInstance = mdAST(config);
+    }
+
+    return parserInstance.parse(src);
+  }
+
+  // Cache entry for the current state.chatAt(0) call
+  const charAtCache = {
+    position: -1,
+    value: '',
+  };
+
+  /**
+   * Get the character at the given position relative to the current position
+   */
+  function charAt(position: number) {
+    const index = state.position + position;
+
+    // Ignore cache if we are not "current" position
+    if (position !== 0) {
+      return state.src.charAt(index);
+    }
+
+    if (index !== charAtCache.position) {
+      charAtCache.position = index;
+      charAtCache.value = state.src.charAt(index);
+    }
+
+    return charAtCache.value;
+  }
+
+  function slice(position: number, length?: number) {
+    if (length === undefined) {
+      return state.src.slice(state.position + position);
+    }
+
+    return state.src.slice(state.position + position, state.position + position + length);
+  }
+
+  /**
+   * Set the current position from within a rule, useful when moving the position
+   * forward manually in a rule
+   */
+  function skip(position: number) {
+    state.position = state.position + position;
+  }
+
+  /**
+   * Progress the position until the predicate returns true
+   */
+  function skipUntil(predicate: (char: string) => boolean) {
+    while (state.position < state.length) {
+      if (predicate(charAt(0))) {
+        break;
+      }
+
+      state.position += 1;
+    }
+  }
+
+  function readUntil(predicate: (char: string) => boolean) {
+    const start = state.position;
+
+    while (state.position < state.length) {
+      if (predicate(charAt(0))) {
+        break;
+      }
+
+      state.position += 1;
+    }
+
+    return state.src.slice(start, state.position);
+  }
+
+  /**
+   * Find a rule by type
+   */
+  function findRule(type: 'block' | 'inline'): Rule<MarkdownNode> | null {
+    if (type === 'inline' && !specialChars.has(charAt(0))) {
+      return null;
+    }
+
+    for (const rule of rules) {
+      if ((rule.type === type || rule.type === 'inline-block') && rule.test(state)) {
+        return rule;
       }
     }
 
     return null;
   }
 
-  parseExpression(type: 'block' | 'inline'): MarkdownNode | null {
-    const expression = this.getMatchingExpression(type);
+  function parseIndentation() {
+    state.indent = 0;
 
-    if (expression) {
-      return expression.toNode();
-    }
+    while (state.position < state.length) {
+      const char = charAt(0);
 
-    return null;
-  }
-
-  parse(): MarkdownNode[] {
-    const nodes: MarkdownNode[] = [];
-
-    while (this.index < this.length) {
-      if (this.peek() === '\n') {
-        this.index++;
-        continue;
-      }
-
-      nodes.push(this.parseBlock());
-    }
-
-    return nodes;
-  }
-
-  parseBlock(): MarkdownNode {
-    // Try to parse a block expression from the start of the line
-    let node = this.parseExpression('block');
-
-    if (node) {
-      return node;
-    }
-
-    const index = this.index;
-
-    // No match, skip whitespace and try again
-    while (
-      this.index < this.length &&
-      (this.peek() === ' ' || this.peek() === '\n' || this.peek() === '\t')
-    ) {
-      this.index++;
-      continue;
-    }
-
-    // Try again
-    if (this.index !== index) {
-      node = this.parseExpression('block');
-
-      if (node) {
-        return node;
+      if (char === '\n') {
+        state.indent = 0;
+        state.lineStart = state.position + 1;
+        state.position += 1;
+      } else if (char === ' ' || char === '\t') {
+        state.indent += 1;
+        state.position += 1;
+      } else {
+        break;
       }
     }
+  }
 
+  function parseBlock(): MarkdownNode | null {
+    // Parse newlines / indentation
+    parseIndentation();
+
+    // Check if we're at the end of the document
+    if (state.position >= state.length) {
+      return null;
+    }
+
+    // Check if we're at the start of a block
+    const rule = findRule('block');
+
+    if (rule) {
+      return rule.parse(state, parserContext);
+    }
+
+    // No block found, parse as paragraph
     return {
       type: 'paragraph',
-      children: this.parseInline(() => {
-        return this.peek() === '\n' && this.peekAt(1) === '\n';
+      children: parseInline(() => {
+        return charAt(0) === '\n' && charAt(1) === '\n';
       }),
     };
   }
 
-  parseInline(predicate?: () => boolean): MarkdownNode[] {
-    const nodes = [];
+  function parseInline(predicate: () => boolean): MarkdownNode[] {
+    const nodes: MarkdownNode[] = [];
 
-    while (this.index < this.length) {
-      if (predicate && predicate()) {
+    while (state.position < state.length) {
+      if (predicate()) {
         return nodes;
       }
 
-      // Check for block expressions after a line break
-      if (this.peek() === '\n') {
-        this.next();
+      // Check if we're at the start of a block
+      if (charAt(0) === '\n') {
+        parseIndentation();
 
-        if (this.getMatchingExpression('block')) {
+        // Block found, return nodes
+        if (findRule('block')) {
           return nodes;
         }
 
-        this.prev();
+        // No block found, revert parseIndentation
+        state.position = state.lineStart - 1;
+        state.indent = 0;
       }
 
-      const node = this.parseExpression('inline');
+      const inlineRule = findRule('inline');
 
-      if (node) {
-        nodes.push(node);
-      }
-
-      if (!node) {
-        const textNode = this.parseText(predicate);
+      if (inlineRule) {
+        nodes.push(inlineRule.parse(state, parserContext));
+      } else {
+        const textNode = parseText(predicate);
 
         if (textNode) {
           nodes.push(textNode);
@@ -159,38 +269,33 @@ export class MarkdownParser {
     return nodes;
   }
 
-  parseText(predicate?: () => boolean): MarkdownTextNode | null {
+  function parseText(predicate: () => boolean): MarkdownTextNode | null {
     let value = '';
     let char = '';
 
-    while ((char = this.peek())) {
-      if (char === '\n') {
+    while ((char = charAt(0))) {
+      if (predicate()) {
         break;
       }
 
-      if (predicate && predicate()) {
+      // If is escaped char, ignore \ and add next char. Then skip to start of loop
+      if (char === '\\' && ESCAPE_CHARS.includes(charAt(1))) {
+        value += charAt(1);
+        state.position += 2;
+        continue;
+      }
+
+      // Check if we're at the start of an inline rule
+      if (findRule('inline')) {
         break;
       }
 
-      if (this.getMatchingExpression('inline')) {
-        break;
-      }
+      value += char;
 
-      if (char === '\\') {
-        // skip escape character
-        this.next();
-
-        // if the next character is not an escape character, add the escape character "back" to the text
-        if (!ESCAPE_CHARS.includes(this.peek()) && !this.getMatchingExpression('inline')) {
-          value += '\\';
-        }
-      }
-
-      // Add the character to the text
-      value += this.next();
+      state.position++;
     }
 
-    if (value.length === 0) {
+    if (!value) {
       return null;
     }
 
@@ -200,60 +305,22 @@ export class MarkdownParser {
     };
   }
 
-  buffer(): string {
-    return this.markdown.slice(this.index);
-  }
+  function parse(src: string): MarkdownNode[] {
+    state.src = src;
+    state.length = src.length;
+    state.position = 0;
 
-  // read?
-  // readUntil?
-  next(): string {
-    return this.markdown.charAt(this.index++);
-  }
+    const nodes: MarkdownNode[] = [];
+    let node: MarkdownNode | null;
 
-  prev(): string {
-    return this.markdown.charAt(--this.index);
-  }
-
-  peek(): string {
-    return this.markdown.charAt(this.index);
-  }
-
-  peekAt(index: number): string {
-    return this.markdown.charAt(this.index + index);
-  }
-
-  peekSet(index: number, count: number): string {
-    return this.markdown.slice(this.index + index, this.index + index + count);
-  }
-
-  peekLine(): string {
-    const buffer = this.buffer();
-    const newlineIndex = buffer.indexOf('\n');
-
-    if (newlineIndex === -1) {
-      return buffer;
+    while ((node = parseBlock())) {
+      nodes.push(node);
     }
 
-    return buffer.slice(0, Math.max(0, newlineIndex));
+    return nodes;
   }
 
-  readUntil(predicate: () => boolean): string {
-    let value = '';
-
-    while (this.index < this.length && !predicate()) {
-      value += this.next();
-    }
-
-    return value;
-  }
-
-  skip(count: number): void {
-    this.index += count;
-  }
-
-  skipUntil(predicate: () => boolean): void {
-    while (this.index < this.length && !predicate()) {
-      this.index++;
-    }
-  }
+  return {
+    parse,
+  };
 }

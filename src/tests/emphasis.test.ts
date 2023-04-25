@@ -1,4 +1,5 @@
 import { parseMarkdown } from '../parseMarkdown';
+import { GFM } from '../presets';
 
 describe('parse.emphasis', () => {
   it('should parse italic with *', () => {
@@ -9,7 +10,7 @@ describe('parse.emphasis', () => {
         type: 'paragraph',
         children: [
           {
-            type: 'italic',
+            type: 'emphasis',
             children: [
               {
                 type: 'text',
@@ -30,7 +31,7 @@ describe('parse.emphasis', () => {
         type: 'paragraph',
         children: [
           {
-            type: 'italic',
+            type: 'emphasis',
             children: [
               {
                 type: 'text',
@@ -86,7 +87,9 @@ describe('parse.emphasis', () => {
   });
 
   it('should parse strikethrough with ~~', () => {
-    const ast = parseMarkdown('~~Hello world~~');
+    const ast = parseMarkdown('~~Hello world~~', {
+      presets: [GFM()],
+    });
 
     expect(ast).toEqual([
       {
@@ -106,8 +109,10 @@ describe('parse.emphasis', () => {
     ]);
   });
 
-  it('should parse italic with inline content', () => {
-    const ast = parseMarkdown('~~***test***~~');
+  it('should parse emphasis with inline content', () => {
+    const ast = parseMarkdown('~~***test***~~', {
+      presets: [GFM()],
+    });
 
     expect(ast).toEqual([
       {
@@ -120,7 +125,7 @@ describe('parse.emphasis', () => {
                 type: 'strong',
                 children: [
                   {
-                    type: 'italic',
+                    type: 'emphasis',
                     children: [
                       {
                         type: 'text',
@@ -181,7 +186,7 @@ describe('parse.emphasis', () => {
             value: '*',
           },
           {
-            type: 'italic',
+            type: 'emphasis',
             children: [
               {
                 type: 'text',
