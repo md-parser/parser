@@ -1,5 +1,6 @@
 import { MarkdownSuperscriptNode } from '../types/nodes';
 import { Rule } from '../types/rule';
+import { hasValidClosingInBlock } from '../utils/rule';
 
 export const superscriptRule: Rule<MarkdownSuperscriptNode> = {
   type: 'inline',
@@ -14,7 +15,7 @@ export const superscriptRule: Rule<MarkdownSuperscriptNode> = {
       return false;
     }
 
-    return state.src.includes('^', state.position + 2);
+    return hasValidClosingInBlock(state, '^');
   },
   parse(state) {
     // skip ^

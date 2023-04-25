@@ -1,21 +1,17 @@
 import { MarkdownStrikeTroughNode } from '../types/nodes';
 import { Rule } from '../types/rule';
+import { hasValidClosingInBlock } from '../utils/rule';
 
 export const striketroughRule: Rule<MarkdownStrikeTroughNode> = {
   type: 'inline',
   name: 'striketrough',
   ruleStartChar: '~',
   test(state) {
-    if (state.charAt(0) !== '~') {
+    if (state.charAt(0) !== '~' && state.charAt(1) !== '~') {
       return false;
     }
 
-    if (state.charAt(1) !== '~') {
-      return false;
-    }
-
-
-    return state.src.includes('~~', state.position + 3);
+    return hasValidClosingInBlock(state, '~~');
   },
   parse(state) {
     // skip ~~

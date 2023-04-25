@@ -1,5 +1,6 @@
 import { MarkdownEmphasisNode } from '../types/nodes';
 import { Rule } from '../types/rule';
+import { hasValidClosingInBlock } from '../utils/rule';
 
 function isSpecialCharacter(char: string) {
   return char === '*' || char === '_'; // || char === '~';
@@ -16,8 +17,7 @@ export const emphasisRule: Rule<MarkdownEmphasisNode> = {
       return false;
     }
 
-    // +2 because we expact the next not to be a special character
-    return state.src.includes(char, state.position + 2);
+    return hasValidClosingInBlock(state, char);
   },
   parse(state) {
     const symbol = state.charAt(0);

@@ -1,5 +1,6 @@
 import { MarkdownStrongNode } from '../types/nodes';
 import { Rule } from '../types/rule';
+import { hasValidClosingInBlock } from '../utils/rule';
 
 function isSpecialCharacter(char: string) {
   return char === '*' || char === '_'; // || char === '~';
@@ -21,7 +22,7 @@ export const strongRule: Rule<MarkdownStrongNode> = {
     }
 
     // +3 because we expact the next not to be a special character
-    return state.src.includes(char + char, state.position + 3);
+    return hasValidClosingInBlock(state, char + char);
   },
   parse(state) {
     const symbol = state.charAt(0);

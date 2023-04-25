@@ -1,18 +1,14 @@
 import { MarkdownInlineCodeNode } from '../types/nodes';
 import { Rule } from '../types/rule';
+import { hasValidClosingInBlock } from '../utils/rule';
 
 export const inlineCodeRule: Rule<MarkdownInlineCodeNode> = {
-  type: 'block',
+  type: 'inline',
   name: 'inlineCode',
+  ruleStartChar: '`',
   test(state) {
-    // 4 spaces === code block
-    if (state.indent >= 4) {
-      return true;
-    }
-
     if (state.charAt(0) === '`') {
-      // TODO Validate ending
-      return true;
+      return hasValidClosingInBlock(state, '`');
     }
 
     return false;
