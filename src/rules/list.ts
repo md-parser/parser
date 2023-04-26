@@ -99,7 +99,7 @@ export const listRule: Rule<MarkdownListNode> = {
         node.children.push({
           type: 'listItem',
           children: parser.parseInline(() => {
-            return state.charAt(0) === '\n' && state.charAt(1) === '\n' && state.charAt(2) !== ' ';
+            return state.charAt(0) === '\n' && state.charAt(1) === '\n';
           }),
         });
       }

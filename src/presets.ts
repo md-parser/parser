@@ -14,5 +14,5 @@ import { Rule } from './types/rule';
 export function GFM(): Rule<
   MarkdownSubscriptNode | MarkdownStrikeTroughNode | MarkdownSuperscriptNode
 >[] {
-  return [superscriptRule, subscriptRule, striketroughRule];
+  return [striketroughRule, superscriptRule, subscriptRule];
 }
