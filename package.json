@@ -19,7 +19,7 @@
     "ts": "tsc --noemit --project ./tsconfig.json",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",
     "nodemon": "nodemon --watch src --ext ts --exec \"yarn run build\"",
-    "release": "yarn test && yarn build && changeset publish"
+    "release": "yarn ts && yarn test && yarn build && changeset publish"
   },
   "dependencies": {
     "@changesets/cli": "^2.26.1"
