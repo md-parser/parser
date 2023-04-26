@@ -182,4 +182,42 @@ describe('parse.list', () => {
       },
     ]);
   });
+
+  it('should parse list items correctly that contains a horizontal rule', () => {
+    expect(parseMarkdown('* foo\n---\n* bar')).toEqual([
+      {
+        type: 'list',
+        ordered: false,
+        children: [
+          {
+            type: 'listItem',
+            children: [
+              {
+                type: 'text',
+                value: 'foo',
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'divider',
+      },
+      {
+        type: 'list',
+        ordered: false,
+        children: [
+          {
+            type: 'listItem',
+            children: [
+              {
+                type: 'text',
+                value: 'bar',
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
 });

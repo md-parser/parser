@@ -61,6 +61,12 @@ export const listRule: Rule<MarkdownListNode> = {
       while (state.position < state.length) {
         const lineStart = state.src.lastIndexOf('\n', state.position) + 1;
         const line = state.src.slice(lineStart);
+
+        // Break current list parsing when next line is not a list item
+        if (!isList(line)) {
+          break;
+        }
+
         const ordered = ORDERED_LIST_ITEM_REGEX.test(line);
         const bullet = getBull(line);
 
@@ -93,10 +99,7 @@ export const listRule: Rule<MarkdownListNode> = {
         node.children.push({
           type: 'listItem',
           children: parser.parseInline(() => {
-            return (
-              (state.charAt(0) === '\n' && state.charAt(1) === '\n') ||
-              (state.charAt(0) === '\n' && isList(state.slice(1)))
-            );
+            return state.charAt(0) === '\n' && state.charAt(1) === '\n' && state.charAt(2) !== ' ';
           }),
         });
       }
