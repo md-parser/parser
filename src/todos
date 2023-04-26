@@ -1,0 +1,16 @@
+- Checkboxes
+- Example rule for :emoji: and :emoji: :emoji: https://github.com/muan/emojilib
+- Check encoding
+  \n is for unix
+  \r is for mac (before OS X)
+  \r\n is for windows format
+- For security reasons, the Unicode character U+0000 must be replaced with the REPLACEMENT CHARACTER (U+FFFD).
+- https://spec.commonmark.org/0.30/
+- Inline matchers like bold and emphasis should only work when the start if before a non whitespace character and the end is after a non whitespace character.
+
+We could first pasrse all "sections"? And then parse every section
+Would make it easier for tags not to break the whole document.
+
+Bla \*sdsdf kjasd agad d.
+
+Next paragraph \*yo.
