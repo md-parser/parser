@@ -2,7 +2,7 @@
 
 ## What is this?
 
-This is a markdown parser that returns an AST (Abstract Syntax Tree) of the markdown document.
+Markdown parser that returns an AST (Abstract Syntax Tree) of the markdown document.
 
 ## What is different?
 
@@ -24,13 +24,21 @@ World
 <p>Hello<br />World</p>
 ```
 
+## Inline HTML
+
+Inline HTML is parsed as is. This means that the HTML is not parsed as markdown. To prevent security vulnerabilities, the markdown renderer should sanitize the output.
+
+### Sanitization
+
+In a markdown parser, "sanitized output" refers to removing or encoding potentially harmful HTML or code to prevent security vulnerabilities. This is not the job of a markdown parser. This is the job of a markdown renderer. This parser only returns an AST. It is up to the renderer to sanitize the output.
+
 ## Install
 
 ```sh
 yarn add @md-parser/parse
 ```
 
-## Usage
+## How to use
 
 ```ts
 import { parseMarkdown } from '@md-parser/parse';
