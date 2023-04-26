@@ -157,6 +157,10 @@ export function mdAST(config: ParserConfig = {}) {
     }
   }
 
+  /**
+   * Read and advance the position until the predicate returns true
+   * Returns the read string
+   */
   function readUntil(predicate: (char: string) => boolean) {
     const start = state.position;
 
@@ -175,6 +179,7 @@ export function mdAST(config: ParserConfig = {}) {
    * Find a rule by type
    */
   function findRule(type: 'block' | 'inline'): Rule<MarkdownNode> | null {
+    // If the current character can't start a rule, return null
     if (type === 'inline' && !ruleStartChars.includes(charAt(0))) {
       return null;
     }
