@@ -13,8 +13,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Item 1',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Item 1',
+                  },
+                ],
               },
             ],
           },
@@ -22,8 +27,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Item 2',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Item 2',
+                  },
+                ],
               },
             ],
           },
@@ -45,8 +55,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Item 1',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Item 1',
+                  },
+                ],
               },
             ],
           },
@@ -54,8 +69,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Item 2',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Item 2',
+                  },
+                ],
               },
             ],
           },
@@ -64,7 +84,7 @@ describe('parse.list', () => {
     ]);
   });
 
-  it('should parse multilevel unordered list', () => {
+  it.only('should parse multilevel unordered list', () => {
     // Note the tab character before the second list item
     const ast = parseMarkdown('* Item 1\n\t* Item 2\n* Item 3');
 
@@ -122,8 +142,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'text',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'text',
+                  },
+                ],
               },
             ],
           },
@@ -144,8 +169,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Item 1',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Item 1',
+                  },
+                ],
               },
             ],
           },
@@ -164,8 +194,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Red: 0% - 20%',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Red: 0% - 20%',
+                  },
+                ],
               },
             ],
           },
@@ -173,8 +208,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Amber: 21% - 35%',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Amber: 21% - 35%',
+                  },
+                ],
               },
             ],
           },

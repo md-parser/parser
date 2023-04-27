@@ -1,8 +1,9 @@
 import { MarkdownListNode } from '../types/nodes';
 import { Rule } from '../types/rule';
 
-const LIST_ITEM_REGEX = /^\s*(?:[*+-]|\d+\.)[\t ]/;
-const ORDERED_LIST_ITEM_REGEX = /^[\t ]*\d+. /;
+const LIST_ITEM_REGEX = /^[\t ]*(?:[*+-]|\d+\.)[\t ]/;
+const ORDERED_LIST_ITEM_REGEX = /^[\t ]*\d+.[\t ]/;
+const EMPTY_LINE_REGEX = /^\s*$/;
 
 function isList(value: string): boolean {
   return LIST_ITEM_REGEX.test(value);
@@ -28,10 +29,61 @@ function getLevel(value: string): number {
   return 0;
 }
 
+const cache = new Map<number, RegExp>();
+
+function getIndentRegex(indent: number): RegExp {
+  if (cache.has(indent)) {
+    return cache.get(indent) as RegExp;
+  }
+
+  const tabs = Math.ceil(indent / 4);
+  const regex = new RegExp(`^(?: {${indent}}|\t{${tabs}})`);
+
+  cache.set(indent, regex);
+
+  return regex;
+}
+
+function getLines(text: string, indent: number): { markdownSlice: string; position: number } {
+  const regex = /^(.*)(?:\n|\r\n?|$)/gm;
+  const lines: string[] = [];
+
+  let prevEmptyLine = false;
+  let match;
+  let position = 0;
+  while ((match = regex.exec(text))) {
+    const line = match[0];
+
+    if (line === '') {
+      break;
+    }
+
+    const hasIndentation = getIndentRegex(indent).test(line);
+
+    // Break current list parsing when previous line is an empty line and current line does not match the indentation
+    if (prevEmptyLine && line !== '' && !hasIndentation) {
+      break;
+    }
+
+    // Break current list parsing when next line a list item on the same level as the current list
+    if (!hasIndentation && isList(line)) {
+      break;
+    }
+
+    prevEmptyLine = EMPTY_LINE_REGEX.test(line);
+
+    position += line.length;
+
+    lines.push(hasIndentation ? line.slice(indent) : line);
+  }
+
+  return { markdownSlice: lines.join(''), position };
+}
+
 export const listRule: Rule<MarkdownListNode> = {
-  type: 'inline-block',
+  type: 'block',
   name: 'list',
-  ruleStartChar: ['*', '-', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+  // ruleStartChar: ['*', '-', '+', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
   test(state) {
     if (state.position > state.lineStart + state.indent) {
       return false;
@@ -91,16 +143,26 @@ export const listRule: Rule<MarkdownListNode> = {
         }
 
         if (state.charAt(0) === '\n' && (state.charAt(1) === '\n' || state.charAt(1) === '')) {
+          // Only break of we find a matching rule?
           break;
         }
 
         parser.skip(bullet.length + (lineStart - state.position));
 
+        const indent = state.position - state.lineStart;
+        const { markdownSlice, position } = getLines(state.src.slice(state.position), indent);
+
+        parser.skip(position);
+
+        if (state.charAt(-1) === '\n') {
+          parser.skip(-1);
+        }
+
+        parser.parseIndentation();
+
         node.children.push({
           type: 'listItem',
-          children: parser.parseInline(() => {
-            return state.charAt(0) === '\n' && state.charAt(1) === '\n';
-          }),
+          children: parser.parse(markdownSlice),
         });
       }
 
