@@ -13,13 +13,13 @@
     "dist/"
   ],
   "scripts": {
-    "test": "vitest --threads=false",
-    "coverage": "vitest run --coverage",
     "build": "rm -rf ./dist/ && ts-node-esm ./build.ts && tsc --emitDeclarationOnly --outDir dist && rm -rf ./dist/tests/",
-    "ts": "tsc --noemit --project ./tsconfig.json",
+    "coverage": "vitest run --coverage",
+    "dev": "nodemon --watch src --ext ts --exec \"yarn run build\"",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",
-    "nodemon": "nodemon --watch src --ext ts --exec \"yarn run build\"",
-    "release": "yarn ts && yarn test && yarn build && changeset publish"
+    "release": "yarn ts && yarn test && yarn build && changeset publish",
+    "test": "vitest --threads=false",
+    "ts": "tsc --noemit --project ./tsconfig.json"
   },
   "dependencies": {
     "@changesets/cli": "^2.26.1"
