@@ -41,11 +41,12 @@ export type ParserContext = {
   parseInline: (predicate: () => boolean) => MarkdownNode[];
   readUntil: (predicate: (char: string) => boolean) => string;
   parse: (src: string) => MarkdownNode[];
+  parseIndentation: () => void;
 };
 
 export function mdAST(config: ParserConfig = {}) {
   const rules: Rule<MarkdownNode>[] = [
-    codeRule, // codeRule needs to be the first rule
+    codeRule, // codeRule needs to be the first rule, or not?...
     strongRule,
     emphasisRule,
     linkRule,
@@ -86,6 +87,7 @@ export function mdAST(config: ParserConfig = {}) {
     skipUntil,
     parseInline,
     readUntil,
+    parseIndentation,
     parse: parseSubTree,
   };
 
