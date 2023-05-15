@@ -21,10 +21,9 @@
     "nodemon": "nodemon --watch src --ext ts --exec \"yarn run build\"",
     "release": "yarn ts && yarn test && yarn build && changeset publish"
   },
-  "dependencies": {
-    "@changesets/cli": "^2.26.1"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@changesets/cli": "^2.26.1",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
     "@vitest/coverage-c8": "^0.30.1",
