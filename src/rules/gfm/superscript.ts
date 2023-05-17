@@ -1,6 +1,6 @@
-import { MarkdownSuperscriptNode } from '../types/nodes';
-import { Rule } from '../types/rule';
-import { hasValidClosingInBlock } from '../utils/rule';
+import { MarkdownSuperscriptNode } from '../../types/nodes';
+import { Rule } from '../../types/rule';
+import { hasValidClosingInBlock } from '../../utils/rule';
 
 export const superscriptRule: Rule<MarkdownSuperscriptNode> = {
   type: 'inline',
