@@ -97,21 +97,31 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Item 1',
-              },
-            ],
-          },
-          {
-            type: 'list',
-            ordered: false,
-            children: [
-              {
-                type: 'listItem',
+                type: 'paragraph',
                 children: [
                   {
                     type: 'text',
-                    value: 'Item 2',
+                    value: 'Item 1',
+                  },
+                ],
+              },
+              {
+                type: 'list',
+                ordered: false,
+                children: [
+                  {
+                    type: 'listItem',
+                    children: [
+                      {
+                        type: 'paragraph',
+                        children: [
+                          {
+                            type: 'text',
+                            value: 'Item 2',
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
@@ -121,8 +131,13 @@ describe('parse.list', () => {
             type: 'listItem',
             children: [
               {
-                type: 'text',
-                value: 'Item 3',
+                type: 'paragraph',
+                children: [
+                  {
+                    type: 'text',
+                    value: 'Item 3',
+                  },
+                ],
               },
             ],
           },
