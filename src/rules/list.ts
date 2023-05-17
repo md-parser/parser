@@ -29,36 +29,41 @@ function getLevel(value: string): number {
   return 0;
 }
 
-const cache = new Map<number, RegExp>();
+const internalIndentRegexCache = new Map<number, RegExp>();
 
 function getIndentRegex(indent: number): RegExp {
-  if (cache.has(indent)) {
-    return cache.get(indent) as RegExp;
+  if (internalIndentRegexCache.has(indent)) {
+    return internalIndentRegexCache.get(indent) as RegExp;
   }
 
   const tabs = Math.ceil(indent / 4);
   const regex = new RegExp(`^(?: {${indent}}|\t{${tabs}})`);
 
-  cache.set(indent, regex);
+  internalIndentRegexCache.set(indent, regex);
 
   return regex;
 }
-
-function getLines(text: string, indent: number): { markdownSlice: string; position: number } {
-  const regex = /^(.*)(?:\n|\r\n?|$)/gm;
+/**
+ * Get lines from the current position
+ *
+ * @returns [markdownSlice: string, position: number]
+ */
+function getLines(text: string, indent: number): [string, number] {
+  const lineRegex = /^(.*)(?:\n|\r\n?|$)/gm;
   const lines: string[] = [];
+  const indentRegex = getIndentRegex(indent);
 
   let prevEmptyLine = false;
   let match;
   let position = 0;
-  while ((match = regex.exec(text))) {
+  while ((match = lineRegex.exec(text))) {
     const line = match[0];
 
     if (line === '') {
       break;
     }
 
-    const hasIndentation = getIndentRegex(indent).test(line);
+    const hasIndentation = indentRegex.test(line);
 
     // Break current list parsing when previous line is an empty line and current line does not match the indentation
     if (prevEmptyLine && line !== '' && !hasIndentation) {
@@ -74,10 +79,10 @@ function getLines(text: string, indent: number): { markdownSlice: string; positi
 
     position += line.length;
 
-    lines.push(hasIndentation ? line.slice(indent) : line);
+    lines.push(hasIndentation ? line.replace(indentRegex, '') : line);
   }
 
-  return { markdownSlice: lines.join(''), position };
+  return [lines.join(''), position];
 }
 
 export const listRule: Rule<MarkdownListNode> = {
@@ -150,7 +155,7 @@ export const listRule: Rule<MarkdownListNode> = {
         parser.skip(bullet.length + (lineStart - state.position));
 
         const indent = state.position - state.lineStart;
-        const { markdownSlice, position } = getLines(state.src.slice(state.position), indent);
+        const [markdownSlice, position] = getLines(state.src.slice(state.position), indent);
 
         parser.skip(position);
 
