@@ -1,5 +1,11 @@
 # @md-parser/parser
 
+## 0.8.2
+
+### Patch Changes
+
+- 5de212c: Create dependabot.yml
+
 ## 0.8.1
 
 ### Patch Changes
