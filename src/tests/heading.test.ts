@@ -67,4 +67,20 @@ describe('parse.heading', () => {
       },
     ]);
   });
+
+  it('should not parse invalid heading', () => {
+    const ast = parseMarkdown('#qwqweqe');
+
+    expect(ast).toEqual([
+      {
+        type: 'paragraph',
+        children: [
+          {
+            type: 'text',
+            value: '#qwqweqe',
+          },
+        ],
+      },
+    ]);
+  });
 });
