@@ -29,6 +29,10 @@ export const headingRule: Rule<MarkdownHeadingNode> = {
 
     const level = getLevel(state.src.slice(state.position));
 
+    if (state.charAt(level) !== ' ') {
+      return false;
+    }
+
     return level > 0 && level < 7;
   },
   parse(state, parser) {

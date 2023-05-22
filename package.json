@@ -1,6 +1,6 @@
 {
   "name": "@md-parser/parser",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Markdown parser",
   "main": "dist/index.esm.js",
   "repository": "https://github.com/md-parser/parser",
@@ -13,25 +13,25 @@
     "dist/"
   ],
   "scripts": {
-    "test": "vitest --threads=false",
-    "coverage": "vitest run --coverage",
     "build": "rm -rf ./dist/ && ts-node-esm ./build.ts && tsc --emitDeclarationOnly --outDir dist && rm -rf ./dist/tests/",
-    "ts": "tsc --noemit --project ./tsconfig.json",
+    "coverage": "vitest run --coverage",
+    "dev": "nodemon --watch src --ext ts --exec \"yarn run build\"",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",
-    "nodemon": "nodemon --watch src --ext ts --exec \"yarn run build\"",
-    "release": "yarn ts && yarn test && yarn build && changeset publish"
+    "release": "yarn ts && yarn test && yarn build && changeset publish",
+    "test": "vitest --threads=false",
+    "ts": "tsc --noemit --project ./tsconfig.json"
   },
   "dependencies": {},
   "devDependencies": {
     "@changesets/cli": "^2.26.1",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
-    "@vitest/coverage-c8": "^0.30.1",
+    "@vitest/coverage-c8": "^0.31.1",
     "esbuild": "^0.17.17",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-unicorn": "^46.0.0",
+    "eslint-plugin-unicorn": "^47.0.0",
     "nodemon": "^2.0.22",
     "prettier": "^2.8.7",
     "ts-node": "^10.9.1",
