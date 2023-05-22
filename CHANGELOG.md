@@ -1,5 +1,11 @@
 # @md-parser/parser
 
+## 0.9.0
+
+### Minor Changes
+
+- 390bdde: Improved list parsing
+
 ## 0.8.2
 
 ### Patch Changes
