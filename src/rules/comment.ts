@@ -1,7 +1,7 @@
 import { MarkdownCommentNode } from '../types/nodes';
 import { Rule } from '../types/rule';
 
-const COMMENT_REGEX = /<!--(.*?)-->/s;
+const COMMENT_REGEX = /<!--\s*(.*?)\s*-->/s;
 
 export const commentRule: Rule<MarkdownCommentNode> = {
   type: 'inline-block',
@@ -16,11 +16,9 @@ export const commentRule: Rule<MarkdownCommentNode> = {
   },
   parse(state, parser) {
     const src = state.src.slice(state.position);
-    const match = src.match(COMMENT_REGEX);
-
-    if (!match) {
-      throw new Error('Comment regex failed');
-    }
+    // We already validated that the comment is valid, so we can safely
+    // use the first match.
+    const match = src.match(COMMENT_REGEX) as RegExpMatchArray;
 
     parser.skip(match[0].length);
 
