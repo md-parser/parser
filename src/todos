@@ -8,3 +8,5 @@
 - For security reasons, the Unicode character U+0000 must be replaced with the REPLACEMENT CHARACTER (U+FFFD).
 - https://spec.commonmark.org/0.30/
 - Inline matchers like bold and emphasis should only work when the start if before a non whitespace character and the end is after a non whitespace character.
+- Parser option for line breaks?
+  - lineBreakType: 'default' | 'commonmark' | '....?', // How to handle line breaks (commonmark spec / ... / default: how a user expects it)
