@@ -1,6 +1,6 @@
-import { MarkdownStrikeTroughNode } from '../types/nodes';
-import { Rule } from '../types/rule';
-import { hasValidClosingInBlock } from '../utils/rule';
+import { MarkdownStrikeTroughNode } from '../../types/nodes';
+import { Rule } from '../../types/rule';
+import { hasValidClosingInBlock } from '../../utils/rule';
 
 export const striketroughRule: Rule<MarkdownStrikeTroughNode> = {
   type: 'inline',

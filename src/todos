@@ -1,5 +1,7 @@
 - Documentation
 - Checkboxes
+- Comments "<!-- -->"
+- Extend parser with custom rules and custom renderers and custom ts types
 - Example rule for :emoji: and :emoji: :emoji: https://github.com/muan/emojilib
 - Check encoding
   \n is for unix
