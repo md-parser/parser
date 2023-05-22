@@ -2,9 +2,8 @@ import { CheckboxNode } from '../../types/nodes';
 import { Rule } from '../../types/rule';
 
 export const checkboxRule: Rule<CheckboxNode> = {
-  type: 'block', // inline-block?
+  type: 'block',
   name: 'checkbox',
-  // ruleStartChar: '[',
   test(state) {
     if (state.charAt(0) !== '[') {
       return false;
