@@ -1,5 +1,11 @@
 # @md-parser/parser
 
+## 0.10.0
+
+### Minor Changes
+
+- 0883c97: Checkbox parsing
+
 ## 0.9.0
 
 ### Minor Changes
