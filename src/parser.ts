@@ -1,5 +1,6 @@
 import { blockquoteRule } from './rules/blockquote';
 import { codeRule } from './rules/code';
+import { commentRule } from './rules/comment';
 import { dividerRule } from './rules/divider';
 import { emphasisRule } from './rules/emphasis';
 import { headingRule } from './rules/heading';
@@ -58,6 +59,7 @@ export function mdAST(config: ParserConfig = {}) {
     listRule,
     tableRule,
     blockquoteRule,
+    commentRule,
   ];
 
   if (config.presets) {

@@ -117,10 +117,15 @@ export type MarkdownSuperscriptNode = {
   children: MarkdownNode[];
 };
 
-export type CheckboxNode = {
+export type MarkdownCheckboxNode = {
   type: 'checkbox';
   checked: boolean;
   children: MarkdownNode[];
+};
+
+export type MarkdownCommentNode = {
+  type: 'comment';
+  value: string;
 };
 
 export type MarkdownNode =
@@ -145,4 +150,5 @@ export type MarkdownNode =
   | MarkdownTableNode
   | MarkdownTableRowNode
   | MarkdownTextNode
-  | CheckboxNode;
+  | MarkdownCheckboxNode
+  | MarkdownCommentNode;

@@ -1,7 +1,7 @@
-import { CheckboxNode } from '../../types/nodes';
+import { MarkdownCheckboxNode } from '../../types/nodes';
 import { Rule } from '../../types/rule';
 
-export const checkboxRule: Rule<CheckboxNode> = {
+export const checkboxRule: Rule<MarkdownCheckboxNode> = {
   type: 'block',
   name: 'checkbox',
   test(state) {
