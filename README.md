@@ -9,6 +9,7 @@ Markdown parser that returns an AST (Abstract Syntax Tree) of the markdown docum
 - Line breaks are always hard breaks
 - No inline HTML
 - Output is not sanitized
+- Headings can only be defined by `#` characters
 
 ### Line breaks
 
@@ -22,6 +23,32 @@ World
 
 ```html
 <p>Hello<br />World</p>
+```
+
+### Headings
+
+Headings can only be defined by `#` characters. This means that headings cannot be defined by underlines or `=` characters.
+
+Valid:
+
+```md
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+```
+
+Invalid:
+
+```md
+# Heading 1
 ```
 
 ## Inline HTML
@@ -67,7 +94,6 @@ const ast = parseMarkdown('# Hello World');
 import { parseMarkdown, GFM } from '@md-parser/parse';
 
 const ast = parseMarkdown('# Hello World', {
-  lineBreakType: 'default' | 'commonmark' | '....?', // How to handle line breaks (commonmark spec / ... / default: how a user expects it)
   presets: [GFM()],
 });
 ```
