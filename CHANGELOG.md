@@ -1,5 +1,11 @@
 # @md-parser/parser
 
+## 0.11.0
+
+### Minor Changes
+
+- 854bec2: Comment parsing
+
 ## 0.10.0
 
 ### Minor Changes
