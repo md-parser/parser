@@ -1,5 +1,13 @@
 # @md-parser/parser
 
+## 0.11.1
+
+### Patch Changes
+
+- 2170aef: Fixed regression when parsing lists.
+  Input "12. 12. 1212" caused infinite loop.
+- 7a619c0: Added `"sideEffects": false` to package.json
+
 ## 0.11.0
 
 ### Minor Changes
