@@ -238,7 +238,6 @@ describe('parse.list', () => {
     ]);
   });
 
-  // TODO - Fix this test
   it('should parse list items correctly that contains a horizontal rule', () => {
     expect(parseMarkdown('* foo\n\n---\n\n* bar')).toEqual([
       {
@@ -277,6 +276,44 @@ describe('parse.list', () => {
                   {
                     type: 'text',
                     value: 'bar',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
+  it('should parse single line lists', () => {
+    expect(parseMarkdown('23. 10. 2000')).toEqual([
+      {
+        type: 'list',
+        ordered: true,
+        start: 23,
+        children: [
+          {
+            type: 'listItem',
+            children: [
+              {
+                type: 'list',
+                ordered: true,
+                start: 10,
+                children: [
+                  {
+                    type: 'listItem',
+                    children: [
+                      {
+                        type: 'paragraph',
+                        children: [
+                          {
+                            type: 'text',
+                            value: '2000',
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },
