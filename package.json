@@ -12,6 +12,7 @@
   "files": [
     "dist/"
   ],
+  "sideEffects": false,
   "scripts": {
     "build": "rm -rf ./dist/ && ts-node-esm ./build.ts && tsc --emitDeclarationOnly --outDir dist && rm -rf ./dist/tests/",
     "coverage": "vitest run --coverage",
