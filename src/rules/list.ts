@@ -56,6 +56,8 @@ function getLines(text: string, indent: number): [string, number] {
   let prevEmptyLine = false;
   let match;
   let position = 0;
+  let isFirstLine = true;
+
   while ((match = lineRegex.exec(text))) {
     const line = match[0];
 
@@ -70,13 +72,14 @@ function getLines(text: string, indent: number): [string, number] {
       break;
     }
 
-    // Break current list parsing when next line a list item on the same level as the current list
-    if (!hasIndentation && isList(line)) {
+    // Break current list parsing when next line is a list item on the same level as the current list
+    if (!hasIndentation && !isFirstLine && isList(line)) {
       break;
     }
 
     prevEmptyLine = EMPTY_LINE_REGEX.test(line);
 
+    isFirstLine = false;
     position += line.length;
 
     lines.push(hasIndentation ? line.replace(indentRegex, '') : line);
@@ -94,7 +97,9 @@ export const listRule: Rule<MarkdownListNode> = {
       return false;
     }
 
-    const start = state.src.slice(state.position, state.position + 6);
+    // 12 is a magic number, but it's the max length of a list item
+    // "1234567890. " is the max length of an ordered list item, dot and space/tab included
+    const start = state.src.slice(state.position, state.position + 12);
 
     return LIST_ITEM_REGEX.test(start);
   },
@@ -156,6 +161,11 @@ export const listRule: Rule<MarkdownListNode> = {
 
         const indent = state.position - state.lineStart;
         const [markdownSlice, position] = getLines(state.src.slice(state.position), indent);
+
+        // If for some reason we can't find new lines, break
+        if (!markdownSlice) {
+          break;
+        }
 
         parser.skip(position);
 
