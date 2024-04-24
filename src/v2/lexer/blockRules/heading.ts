@@ -39,26 +39,27 @@ export const headingRule = createRule({
       return false;
     }
 
-    state.tokens.push({
-      tag: `h${level}`,
-      type: TokenType.HeadingStart,
-      start,
-    });
+    state.tokens.push(
+      {
+        tag: `h${level}`,
+        type: TokenType.HeadingStart,
+        start,
+      },
+      {
+        type: 'inline',
+        content: value,
+        children: [],
+        start: start + level + 1,
+      },
+      {
+        tag: `h${level}`,
+        type: TokenType.HeadingEnd,
+        start: pos,
+      },
+    );
 
-    state.tokens.push({
-      type: 'inline',
-      content: value,
-      children: [],
-      start: start + level + 1,
-    });
-
-    state.tokens.push({
-      tag: `h${level}`,
-      type: TokenType.HeadingEnd,
-      start: pos,
-    });
-
-    state.cursor = pos;
+    // +1 for the newline
+    state.cursor = pos + 1;
     return true;
   },
 });

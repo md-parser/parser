@@ -17,6 +17,8 @@ export const paragraphRule = createRule({
       start,
     });
 
+    // Use lines to iterate over the source
+
     while (pos < state.length) {
       const code = state.src.charCodeAt(pos);
       const nextCode = state.src.charCodeAt(pos + 1);
@@ -31,18 +33,19 @@ export const paragraphRule = createRule({
         state.cursor = pos + 1;
         state.mode = 'block';
 
-        state.tokens.push({
-          type: 'inline',
-          content: value,
-          children: [],
-          start,
-        });
-
-        state.tokens.push({
-          tag: 'p',
-          type: TokenType.ParagraphEnd,
-          start: pos,
-        });
+        state.tokens.push(
+          {
+            type: 'inline',
+            content: value,
+            children: [],
+            start,
+          },
+          {
+            tag: 'p',
+            type: TokenType.ParagraphEnd,
+            start: pos,
+          },
+        );
 
         // is new block start?
         if (state.testForTermination('paragraph')) {
@@ -59,18 +62,19 @@ export const paragraphRule = createRule({
       pos++;
     }
 
-    state.tokens.push({
-      type: 'inline',
-      content: value,
-      children: [],
-      start,
-    });
-
-    state.tokens.push({
-      tag: 'p',
-      type: TokenType.ParagraphEnd,
-      start: pos,
-    });
+    state.tokens.push(
+      {
+        type: 'inline',
+        content: value,
+        children: [],
+        start,
+      },
+      {
+        tag: 'p',
+        type: TokenType.ParagraphEnd,
+        start: pos,
+      },
+    );
 
     state.cursor = pos;
     state.mode = 'block';

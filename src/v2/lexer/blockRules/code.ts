@@ -43,22 +43,11 @@ export const codeRule = createRule({
     state.cursor = pos;
 
     state.tokens.push({
-      type: TokenType.CodeStart,
+      type: TokenType.Code,
       tag: 'code',
       start,
-    });
-
-    state.tokens.push({
-      type: 'inline',
-      content: value,
-      children: [],
-      start: start + 3,
-    });
-
-    state.tokens.push({
-      type: TokenType.CodeEnd,
-      tag: 'code',
-      start: pos,
+      value,
+      // language: '...',
     });
 
     return true;

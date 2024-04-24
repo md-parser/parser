@@ -24,8 +24,7 @@ export enum TokenType {
   HorizontalRule = 'HorizontalRule',
   BlockquoteStart = 'BlockquoteStart',
   BlockquoteEnd = 'BlockquoteEnd',
-  CodeStart = 'CodeStart',
-  CodeEnd = 'CodeEnd',
+  Code = 'Code',
   InlineCode = 'InlineCode',
 }
 
@@ -91,7 +90,7 @@ export function lexer(src: string, mode: LexerState['mode'] = 'block') {
   };
 
   function findRule(type: 'block' | 'inline') {
-    let prevCursor = state.cursor;
+    const prevCursor = state.cursor;
 
     for (const rule of rules) {
       if (rule.type === type && rule.parse(state)) {
@@ -125,6 +124,6 @@ export function lexer(src: string, mode: LexerState['mode'] = 'block') {
   return state.tokens;
 }
 
-const tokens = lexer('___BLPE___*l*');
-// ```kek`blep\n> SOEP\n## HI\n> More Soep\n\nNew para
-console.log(JSON.stringify(tokens, null, 2));
+// const tokens = lexer('___BLPE___*l*');
+// // ```kek`blep\n> SOEP\n## HI\n> More Soep\n\nNew para
+// console.log(JSON.stringify(tokens, null, 2));

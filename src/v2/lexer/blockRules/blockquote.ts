@@ -34,18 +34,19 @@ export const blockquoteRule = createRule({
         const prev = state.cursor;
         state.cursor = pos + 1;
 
-        state.tokens.push({
-          type: 'inline',
-          content: value,
-          children: [],
-          start,
-        });
-
-        state.tokens.push({
-          tag: 'blockquote',
-          type: TokenType.BlockquoteEnd,
-          start: pos,
-        });
+        state.tokens.push(
+          {
+            type: 'inline',
+            content: value,
+            children: [],
+            start,
+          },
+          {
+            tag: 'blockquote',
+            type: TokenType.BlockquoteEnd,
+            start: pos,
+          },
+        );
 
         // is new block start?
         if (state.testForTermination('blockquote')) {
@@ -61,18 +62,19 @@ export const blockquoteRule = createRule({
       pos++;
     }
 
-    state.tokens.push({
-      type: 'inline',
-      content: value,
-      children: [],
-      start,
-    });
-
-    state.tokens.push({
-      tag: 'blockquote',
-      type: TokenType.BlockquoteEnd,
-      start: pos,
-    });
+    state.tokens.push(
+      {
+        type: 'inline',
+        content: value,
+        children: [],
+        start,
+      },
+      {
+        tag: 'blockquote',
+        type: TokenType.BlockquoteEnd,
+        start: pos,
+      },
+    );
 
     state.cursor = pos;
 
